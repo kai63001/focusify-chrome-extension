@@ -1,9 +1,25 @@
-import { useState } from "react";
 import Draggable from "react-draggable";
+
+// Widgets
 import Pomodoro from "./Pomodoro";
+import Todo from "./Todo";
+
+// Store
+import useWidgetControllerStore from "../../store/widgetControllerStore";
 
 const Controller = () => {
-  const [showPomodoro, setShowPomodoro] = useState(false);
+  const { addWidget, removeWidget, isWidgetOpen, bringToFront } = useWidgetControllerStore();
+  const state = useWidgetControllerStore();
+
+  const toggleWidget = (widgetName) => {
+    const isOpen = isWidgetOpen(widgetName)(state);
+    if (isOpen) {
+      removeWidget(widgetName);
+    } else {
+      addWidget(widgetName);
+      bringToFront(widgetName);
+    }
+  };
 
   return (
     <>
@@ -14,15 +30,22 @@ const Controller = () => {
           </div>
           <div className="p-4">
             <button
-              onClick={() => setShowPomodoro(!showPomodoro)}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => toggleWidget("Pomodoro")}
             >
-              {showPomodoro ? "Close" : "Open"} Pomodoro
+              {isWidgetOpen("Pomodoro")(state) ? "Close" : "Open"} Pomodoro
+            </button>
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={() => toggleWidget("Todo")}
+            >
+              {isWidgetOpen("Todo")(state) ? "Close" : "Open"} Todo
             </button>
           </div>
         </div>
       </Draggable>
-      {showPomodoro && <Pomodoro />}
+      {isWidgetOpen("Pomodoro")(state) && <Pomodoro />}
+      {isWidgetOpen("Todo")(state) && <Todo />}
     </>
   );
 };
