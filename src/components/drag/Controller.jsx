@@ -60,6 +60,7 @@ const Controller = () => {
               <button
                 key={index}
                 className="text-white text-md font-bold px-2 py-1 rounded-md hover:bg-white/10"
+                onClick={() => toggleWidget(item.name)}
               >
                 {item.icon}
               </button>
