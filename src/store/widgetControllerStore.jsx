@@ -14,7 +14,6 @@ const useWidgetControllerStore = create((set) => ({
     })),
   isWidgetOpen: (widgetName) => (state) =>
     state.listWidgetOpened.some((widget) => widget.name === widgetName),
-  // Add this new function
   bringToFront: (widgetName) =>
     set((state) => ({
       listWidgetOpened: state.listWidgetOpened.map((widget) =>
@@ -23,7 +22,6 @@ const useWidgetControllerStore = create((set) => ({
           : { ...widget, zIndex: widget.zIndex > 0 ? widget.zIndex - 1 : 0 }
       ),
     })),
-  // Add this new function
   getWidgetZIndex: (widgetName) => (state) =>
     state.listWidgetOpened.find((widget) => widget.name === widgetName)?.zIndex ?? 0,
 }));
