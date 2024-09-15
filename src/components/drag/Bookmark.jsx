@@ -5,8 +5,11 @@ import useRandomPosition from "../../hooks/useRandomPosition";
 import { X, Folder, Globe, ChevronLeft } from "lucide-react";
 
 const Bookmark = () => {
-  const { bringToFront, getWidgetZIndex, removeWidget } = useWidgetControllerStore();
-  const zIndex = getWidgetZIndex("Bookmark")(useWidgetControllerStore.getState());
+  const { bringToFront, getWidgetZIndex, removeWidget } =
+    useWidgetControllerStore();
+  const zIndex = getWidgetZIndex("Bookmark")(
+    useWidgetControllerStore.getState()
+  );
   const [position, setPosition] = useRandomPosition();
   const [currentPath, setCurrentPath] = useState([]);
   const [rootFolder, setRootFolder] = useState({ children: [] });
@@ -21,8 +24,10 @@ const Bookmark = () => {
     } else {
       setIsFirstTime(false);
     }
-    
-    const savedBookmarks = JSON.parse(localStorage.getItem("bookmarks") || "[]");
+
+    const savedBookmarks = JSON.parse(
+      localStorage.getItem("bookmarks") || "[]"
+    );
     setRootFolder({ children: savedBookmarks });
     setCurrentFolder({ children: savedBookmarks });
   }, []);
@@ -38,7 +43,11 @@ const Bookmark = () => {
 
     const [currentIndex, ...restPath] = path;
     const updatedChildren = [...folder.children];
-    updatedChildren[currentIndex] = updateNestedBookmarks(folder.children[currentIndex], restPath, newItem);
+    updatedChildren[currentIndex] = updateNestedBookmarks(
+      folder.children[currentIndex],
+      restPath,
+      newItem
+    );
 
     return { ...folder, children: updatedChildren };
   };
@@ -47,7 +56,11 @@ const Bookmark = () => {
     const folderName = prompt("Enter folder name:");
     if (folderName) {
       const newFolder = { type: "folder", name: folderName, children: [] };
-      const updatedRoot = updateNestedBookmarks(rootFolder, currentPath, newFolder);
+      const updatedRoot = updateNestedBookmarks(
+        rootFolder,
+        currentPath,
+        newFolder
+      );
       setRootFolder(updatedRoot);
       setCurrentFolder(updateNestedBookmarks(currentFolder, [], newFolder));
       saveBookmarks(updatedRoot);
@@ -59,7 +72,11 @@ const Bookmark = () => {
     const linkUrl = prompt("Enter link URL:");
     if (linkName && linkUrl) {
       const newLink = { type: "link", name: linkName, url: linkUrl };
-      const updatedRoot = updateNestedBookmarks(rootFolder, currentPath, newLink);
+      const updatedRoot = updateNestedBookmarks(
+        rootFolder,
+        currentPath,
+        newLink
+      );
       setRootFolder(updatedRoot);
       setCurrentFolder(updateNestedBookmarks(currentFolder, [], newLink));
       saveBookmarks(updatedRoot);
@@ -120,20 +137,40 @@ const Bookmark = () => {
         <div className="flex-grow overflow-auto p-4">
           {isFirstTime ? (
             <div className="text-white text-center">
-              <p>Welcome to Bookmarks! Would you like to import your existing bookmarks?</p>
-              <button onClick={importBookmarks} className="bg-blue-500 px-4 py-2 rounded mt-4">
+              <p>
+                Welcome to Bookmarks! Would you like to import your existing
+                bookmarks?
+              </p>
+              <button
+                onClick={importBookmarks}
+                className="bg-blue-500 px-4 py-2 rounded mt-4"
+              >
                 Import Bookmarks
               </button>
             </div>
           ) : (
             <>
               <div className="flex justify-between mb-4">
-                <button onClick={goBack} disabled={currentPath.length === 0} className="text-white">
+                <button
+                  onClick={goBack}
+                  disabled={currentPath.length === 0}
+                  className="text-white"
+                >
                   <ChevronLeft />
                 </button>
                 <div>
-                  <button onClick={addFolder} className="bg-green-500 px-4 py-2 rounded mr-2">Add Folder</button>
-                  <button onClick={addLink} className="bg-blue-500 px-4 py-2 rounded">Add Link</button>
+                  <button
+                    onClick={addFolder}
+                    className="bg-green-500 px-4 py-2 rounded mr-2"
+                  >
+                    Add Folder
+                  </button>
+                  <button
+                    onClick={addLink}
+                    className="bg-blue-500 px-4 py-2 rounded"
+                  >
+                    Add Link
+                  </button>
                 </div>
               </div>
               <ul className="space-y-2">
@@ -143,7 +180,11 @@ const Bookmark = () => {
                     className="flex items-center text-white cursor-pointer hover:bg-gray-700 p-2 rounded"
                     onClick={() => handleItemClick(item, index)}
                   >
-                    {item.type === "folder" ? <Folder className="mr-2" /> : <Globe className="mr-2" />}
+                    {item.type === "folder" ? (
+                      <Folder className="mr-2" />
+                    ) : (
+                      <Globe className="mr-2" />
+                    )}
                     {item.name}
                   </li>
                 ))}
