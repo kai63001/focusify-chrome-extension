@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Draggable from "react-draggable";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import useRandomPosition from "../../hooks/useRandomPosition";
 import { Play, Pause, RefreshCcw, X } from "lucide-react";
-
 
 const Pomodoro = () => {
   const { bringToFront, getWidgetZIndex, removeWidget } = useWidgetControllerStore();
@@ -14,24 +13,35 @@ const Pomodoro = () => {
 
   const [time, setTime] = useState(25 * 60); // 25 minutes in seconds
   const [isActive, setIsActive] = useState(false);
+  const workerRef = useRef(null);
 
   useEffect(() => {
     const savedTime = localStorage.getItem("pomodoroTime");
     if (savedTime) setTime(parseInt(savedTime));
 
-    let interval = null;
+    workerRef.current = new Worker(new URL('../../libs/timerWorker.js', import.meta.url));
+
+    workerRef.current.onmessage = (e) => {
+      setTime(e.data.time);
+      localStorage.setItem("pomodoroTime", e.data.time.toString());
+    };
+
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (isActive && time > 0) {
-      interval = setInterval(() => {
-        setTime((prevTime) => {
-          const newTime = prevTime - 1;
-          localStorage.setItem("pomodoroTime", newTime.toString());
-          return newTime;
-        });
-      }, 1000);
-    } else if (time === 0) {
-      setIsActive(false);
+      workerRef.current.postMessage({ action: 'start', time });
+    } else {
+      workerRef.current.postMessage({ action: 'stop' });
+      if (time === 0) {
+        setIsActive(false);
+      }
     }
-    return () => clearInterval(interval);
   }, [isActive, time]);
 
   const toggleTimer = () => setIsActive(!isActive);
