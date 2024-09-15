@@ -30,20 +30,23 @@ const Bookmark = () => {
   };
 
   useEffect(() => {
-    const firstTimeCheck = localStorage.getItem("bookmarkFirstTime");
-    if (firstTimeCheck === null) {
-      setIsFirstTime(true);
-      localStorage.setItem("bookmarkFirstTime", "false");
-    } else {
-      setIsFirstTime(false);
-    }
+    const checkFirstTimeAndImport = async () => {
+      const firstTimeCheck = localStorage.getItem("bookmarkFirstTime");
+      if (firstTimeCheck === null) {
+        setIsFirstTime(true);
+      } else {
+        setIsFirstTime(false);
+        // Load saved bookmarks as before
+        const savedBookmarks = JSON.parse(
+          localStorage.getItem("bookmarks") || "[]"
+        );
+        const sortedBookmarks = sortItems(savedBookmarks);
+        setRootFolder({ children: sortedBookmarks });
+        setCurrentFolder({ children: sortedBookmarks });
+      }
+    };
 
-    const savedBookmarks = JSON.parse(
-      localStorage.getItem("bookmarks") || "[]"
-    );
-    const sortedBookmarks = sortItems(savedBookmarks);
-    setRootFolder({ children: sortedBookmarks });
-    setCurrentFolder({ children: sortedBookmarks });
+    checkFirstTimeAndImport();
   }, []);
 
   useEffect(() => {
@@ -129,9 +132,25 @@ const Bookmark = () => {
   };
 
   const importBookmarks = () => {
-    alert("Bookmark import functionality to be implemented");
-    setIsFirstTime(false);
-    localStorage.setItem("bookmarkFirstTime", "false");
+    // eslint-disable-next-line no-undef
+    chrome.storage.local.get(["importedBookmarks"], (result) => {
+      if (result.importedBookmarks) {
+        const data = result.importedBookmarks[0];
+        setRootFolder(data);
+        setCurrentFolder(data);
+        saveBookmarks(data);
+
+        alert("Bookmarks imported successfully");
+
+        // setRootFolder({ children: result.importedBookmarks });
+        // setCurrentFolder({ children: result.importedBookmarks });
+        // saveBookmarks();
+        // setIsFirstTime(false);
+        localStorage.setItem("bookmarkFirstTime", "false");
+      } else {
+        alert("No bookmarks found to import.");
+      }
+    });
   };
 
   const handleContextMenu = useCallback((e, item, index) => {
