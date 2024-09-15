@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const useRandomPosition = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: -200, y: -200 });
 
   useEffect(() => {
     const randomPosition = () => {
