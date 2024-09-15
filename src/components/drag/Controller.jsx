@@ -1,6 +1,9 @@
 // Widgets
 import Pomodoro from "./Pomodoro";
 import Todo from "./Todo";
+import Bookmark from "./Bookmark";
+
+// Icons
 import { House, Settings, Timer, Folder } from "lucide-react";
 
 // Store
@@ -24,7 +27,7 @@ const Controller = () => {
 
   const listMiddleMenu = [
     {
-      name: "Folder",
+      name: "Bookmark",
       icon: <Folder size={24} />,
     },
     {
@@ -77,6 +80,7 @@ const Controller = () => {
       </div>
       {isWidgetOpen("Pomodoro")(state) && <Pomodoro />}
       {isWidgetOpen("Todo")(state) && <Todo />}
+      {isWidgetOpen("Bookmark")(state) && <Bookmark />}
     </>
   );
 };

@@ -5,7 +5,7 @@ const useRandomPosition = () => {
 
   useEffect(() => {
     const randomPosition = () => {
-      const maxWidth = window.innerWidth - 300;
+      const maxWidth = window.innerWidth - 600;
       const maxHeight = window.innerHeight - 200;
       return {
         x: Math.random() * maxWidth,
