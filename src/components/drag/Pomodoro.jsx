@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import Draggable from "react-draggable";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import useRandomPosition from "../../hooks/useRandomPosition";
+import { Play, Pause, RefreshCcw } from "lucide-react";
 
 const Pomodoro = () => {
   const { bringToFront, getWidgetZIndex } = useWidgetControllerStore();
-  const zIndex = getWidgetZIndex("Pomodoro")(useWidgetControllerStore.getState());
+  const zIndex = getWidgetZIndex("Pomodoro")(
+    useWidgetControllerStore.getState()
+  );
   const [position, setPosition] = useRandomPosition();
 
   const [time, setTime] = useState(25 * 60); // 25 minutes in seconds
@@ -40,7 +43,9 @@ const Pomodoro = () => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   return (
@@ -62,20 +67,28 @@ const Pomodoro = () => {
           <span>Pomodoro Timer</span>
         </div>
         <div className="p-4 text-center">
-          <div className="text-4xl font-bold text-white mb-4">{formatTime(time)}</div>
+          <div className="text-4xl font-bold text-white mb-4">
+            {formatTime(time)}
+          </div>
           <div className="space-x-2">
             <button
               onClick={toggleTimer}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              className="border-[#ed974d]   border duration-300 hover:bg-[#ed974d]/20 text-white font-bold py-2 px-7 rounded"
             >
-              {isActive ? "Pause" : "Start"}
+              {isActive ? (
+                <Pause size={24} className="text-[#ed974d]" />
+              ) : (
+                <Play size={24} className="text-[#ed974d]" />
+              )}
             </button>
-            <button
-              onClick={resetTimer}
-              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-            >
-              Reset
-            </button>
+            {!isActive && (
+              <button
+                onClick={resetTimer}
+                className="duration-300  text-white font-bold py-2 px-4 rounded"
+              >
+                <RefreshCcw size={24} className="text-white" />
+              </button>
+            )}
           </div>
         </div>
       </div>
