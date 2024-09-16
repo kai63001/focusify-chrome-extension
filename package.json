@@ -16,6 +16,7 @@
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.6",
     "react-fireworks": "^1.0.4",
+    "react-hot-toast": "^2.4.1",
     "zustand": "^4.5.5"
   },
   "devDependencies": {
