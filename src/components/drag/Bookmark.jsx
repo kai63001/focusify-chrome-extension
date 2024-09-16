@@ -139,13 +139,7 @@ const Bookmark = () => {
         setRootFolder(data);
         setCurrentFolder(data);
         saveBookmarks(data);
-
-        alert("Bookmarks imported successfully");
-
-        // setRootFolder({ children: result.importedBookmarks });
-        // setCurrentFolder({ children: result.importedBookmarks });
-        // saveBookmarks();
-        // setIsFirstTime(false);
+        setIsFirstTime(false);
         localStorage.setItem("bookmarkFirstTime", "false");
       } else {
         alert("No bookmarks found to import.");
