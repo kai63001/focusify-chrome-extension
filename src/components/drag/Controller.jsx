@@ -10,10 +10,22 @@ import { House, Settings, Timer, Folder } from "lucide-react";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import { FileCheck } from "lucide-react";
 
+// Hooks
+import { useEffect } from "react";
+
 const Controller = () => {
-  const { addWidget, removeWidget, isWidgetOpen, bringToFront } =
-    useWidgetControllerStore();
+  const {
+    addWidget,
+    removeWidget,
+    isWidgetOpen,
+    bringToFront,
+    initializeFromLocalStorage,
+  } = useWidgetControllerStore();
   const state = useWidgetControllerStore();
+
+  useEffect(() => {
+    initializeFromLocalStorage();
+  }, []);
 
   const toggleWidget = (widgetName) => {
     const isOpen = isWidgetOpen(widgetName)(state);
@@ -59,15 +71,15 @@ const Controller = () => {
             </button>
             <div className="mx-10 h-6 w-px bg-white/30"></div>
             <div className="flex justify-center items-center space-x-1">
-            {listMiddleMenu.map((item, index) => (
-              <button
-                key={index}
-                className="text-white text-md font-bold px-2 py-1 rounded-md hover:bg-white/10"
-                onClick={() => toggleWidget(item.name)}
-              >
-                {item.icon}
-              </button>
-            ))}
+              {listMiddleMenu.map((item, index) => (
+                <button
+                  key={index}
+                  className="text-white text-md font-bold px-2 py-1 rounded-md hover:bg-white/10"
+                  onClick={() => toggleWidget(item.name)}
+                >
+                  {item.icon}
+                </button>
+              ))}
             </div>
           </div>
           {/* end with user settings */}

@@ -31,12 +31,22 @@ const useTodos = () => {
 };
 
 const Todo = () => {
-  const { bringToFront, getWidgetZIndex, removeWidget } =
-    useWidgetControllerStore();
+  const {
+    bringToFront,
+    getWidgetZIndex,
+    removeWidget,
+    addWidget,
+    updateWidgetPosition,
+  } = useWidgetControllerStore();
   const zIndex = getWidgetZIndex("Todo")(useWidgetControllerStore.getState());
-  const [position, setPosition] = useRandomPosition();
+  const [position, setPosition] = useRandomPosition("Todo");
   const [todos, setTodos] = useTodos();
   const [draggedTodo, setDraggedTodo] = useState(null);
+
+  useEffect(() => {
+    addWidget("Todo", position);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const addTodo = useCallback(() => {
     const newTodoItem = { id: Date.now(), text: "", completed: false };
@@ -97,7 +107,10 @@ const Todo = () => {
       bounds="parent"
       handle="#dragHandle"
       position={position}
-      onStop={(e, data) => setPosition({ x: data.x, y: data.y })}
+      onStop={(e, data) => {
+        setPosition({ x: data.x, y: data.y });
+        updateWidgetPosition("Todo", { x: data.x, y: data.y });
+      }}
     >
       <div
         className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden"

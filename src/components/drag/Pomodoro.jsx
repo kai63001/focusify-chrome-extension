@@ -5,21 +5,33 @@ import useRandomPosition from "../../hooks/useRandomPosition";
 import { Play, Pause, RefreshCcw, X } from "lucide-react";
 
 const Pomodoro = () => {
-  const { bringToFront, getWidgetZIndex, removeWidget } = useWidgetControllerStore();
+  const {
+    bringToFront,
+    getWidgetZIndex,
+    removeWidget,
+    addWidget,
+    updateWidgetPosition,
+  } = useWidgetControllerStore();
   const zIndex = getWidgetZIndex("Pomodoro")(
     useWidgetControllerStore.getState()
   );
-  const [position, setPosition] = useRandomPosition();
+  const [position, setPosition] = useRandomPosition("Pomodoro");
 
   const [time, setTime] = useState(25 * 60); // 25 minutes in seconds
   const [isActive, setIsActive] = useState(false);
   const workerRef = useRef(null);
 
   useEffect(() => {
+    addWidget("Pomodoro", position);
+  }, []);
+
+  useEffect(() => {
     const savedTime = localStorage.getItem("pomodoroTime");
     if (savedTime) setTime(parseInt(savedTime));
 
-    workerRef.current = new Worker(new URL('../../libs/timerWorker.js', import.meta.url));
+    workerRef.current = new Worker(
+      new URL("../../libs/timerWorker.js", import.meta.url)
+    );
 
     workerRef.current.onmessage = (e) => {
       setTime(e.data.time);
@@ -35,9 +47,9 @@ const Pomodoro = () => {
 
   useEffect(() => {
     if (isActive && time > 0) {
-      workerRef.current.postMessage({ action: 'start', time });
+      workerRef.current.postMessage({ action: "start", time });
     } else {
-      workerRef.current.postMessage({ action: 'stop' });
+      workerRef.current.postMessage({ action: "stop" });
       if (time === 0) {
         setIsActive(false);
       }
@@ -64,7 +76,10 @@ const Pomodoro = () => {
       bounds="parent"
       handle="#dragHandle"
       position={position}
-      onStop={(e, data) => setPosition({ x: data.x, y: data.y })}
+      onStop={(e, data) => {
+        setPosition({ x: data.x, y: data.y });
+        updateWidgetPosition("Pomodoro", { x: data.x, y: data.y });
+      }}
     >
       <div
         className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden"
@@ -76,9 +91,13 @@ const Pomodoro = () => {
           className="text-white px-4 py-2 flex justify-between items-ceter cursor-move"
         >
           <span>Pomodoro Timer</span>
-          <X size={16} className="cursor-pointer" onClick={()=>{
-            removeWidget("Pomodoro")
-          }} />
+          <X
+            size={16}
+            className="cursor-pointer"
+            onClick={() => {
+              removeWidget("Pomodoro");
+            }}
+          />
         </div>
         <div className="p-4 text-center">
           <div className="text-4xl font-bold text-white mb-4">

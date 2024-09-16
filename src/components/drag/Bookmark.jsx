@@ -1,16 +1,21 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Draggable from "react-draggable";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import useRandomPosition from "../../hooks/useRandomPosition";
 import { X, Folder, Globe, ChevronLeft, Edit, Trash } from "lucide-react";
 
 const Bookmark = () => {
-  const { bringToFront, getWidgetZIndex, removeWidget } =
-    useWidgetControllerStore();
+  const {
+    bringToFront,
+    getWidgetZIndex,
+    removeWidget,
+    addWidget,
+    updateWidgetPosition,
+  } = useWidgetControllerStore();
   const zIndex = getWidgetZIndex("Bookmark")(
     useWidgetControllerStore.getState()
   );
-  const [position, setPosition] = useRandomPosition();
+  const [position, setPosition] = useRandomPosition("Bookmark");
   const [currentPath, setCurrentPath] = useState([]);
   const [rootFolder, setRootFolder] = useState({ children: [] });
   const [currentFolder, setCurrentFolder] = useState({ children: [] });
@@ -20,6 +25,10 @@ const Bookmark = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const editInputRef = useRef(null);
   const bookmarkRef = useRef(null);
+
+  useEffect(() => {
+    addWidget("Bookmark", position);
+  }, [addWidget, position]);
 
   const sortItems = (items) => {
     return items.sort((a, b) => {
@@ -228,7 +237,10 @@ const Bookmark = () => {
       bounds="parent"
       handle="#dragHandle"
       position={position}
-      onStop={(e, data) => setPosition({ x: data.x, y: data.y })}
+      onStop={(e, data) => {
+        setPosition({ x: data.x, y: data.y });
+        updateWidgetPosition("Bookmark", { x: data.x, y: data.y });
+      }}
     >
       <div
         ref={bookmarkRef}
@@ -256,31 +268,41 @@ const Bookmark = () => {
               </p>
               <button
                 onClick={importBookmarks}
-                className="bg-blue-500 px-4 py-2 rounded mt-4"
+                className="px-4 py-2 rounded mt-4 border hover:bg-white hover:text-black duration-300"
               >
                 Import Bookmarks
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsFirstTime(false);
+                  localStorage.setItem("bookmarkFirstTime", "false");
+                }}
+                className="ml-3 px-4 py-2 rounded mt-4 "
+              >
+                No, thanks
               </button>
             </div>
           ) : (
             <>
-              <div className="flex justify-between mb-4">
+              <div className="flex justify-between mb-4 bg-[#2C2420] p-2">
                 <button
                   onClick={goBack}
                   disabled={currentPath.length === 0}
                   className="text-white"
                 >
-                  <ChevronLeft />
+                  <ChevronLeft size={24} />
                 </button>
                 <div>
                   <button
                     onClick={addFolder}
-                    className="bg-green-500 px-4 py-2 rounded mr-2"
+                    className="bg-[#3A302A] text-white px-3 py-1 rounded mr-2 text-sm hover:bg-[#4A403A] transition-colors duration-200"
                   >
                     Add Folder
                   </button>
                   <button
                     onClick={addLink}
-                    className="bg-blue-500 px-4 py-2 rounded"
+                    className="bg-[#3A302A] text-white px-3 py-1 rounded text-sm hover:bg-[#4A403A] transition-colors duration-200"
                   >
                     Add Link
                   </button>
