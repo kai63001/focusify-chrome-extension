@@ -114,12 +114,12 @@ const Todo = () => {
     >
       <div
         className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden"
-        style={{ zIndex: 40 + zIndex, width: "300px" }}
+        style={{ zIndex: 40 + zIndex, width: "500px" }}
         onClick={() => bringToFront("Todo")}
       >
         <div
           id="dragHandle"
-          className="text-white px-4 py-2 flex justify-between items-center cursor-move bg-[#2C2420]"
+          className="text-white px-4 py-2 flex justify-between items-center cursor-move bg-[#2e2e2e]/60"
         >
           <span>
             Completed items: {todos.filter((todo) => todo.completed).length} /{" "}
@@ -142,7 +142,7 @@ const Todo = () => {
                 onDragStart={(e) => onDragStart(e, todo)}
                 onDragOver={(e) => onDragOver(e, index)}
                 onDragEnd={onDragEnd}
-                className={`flex items-center space-x-2 bg-[#2C2420] p-2 rounded cursor-move ${
+                className={`flex items-center space-x-2 bg-[#2e2e2e]/60 p-2 rounded cursor-move ${
                   draggedTodo && draggedTodo.id === todo.id ? "opacity-50" : ""
                 }`}
               >
@@ -189,7 +189,7 @@ const Todo = () => {
           <div className="flex justify-center items-center space-x-2  duration-1000">
             <button
               onClick={addTodo}
-              className="w-full duration-1000 hover:bg-[#ed974d]/20 bg-[#2C2420] text-white p-2 rounded flex items-center justify-center space-x-2"
+              className="w-full duration-1000 hover:bg-[#ed974d]/20 bg-[#2e2e2e]/60 text-white p-2 rounded flex items-center justify-center space-x-2"
             >
               <Plus size={20} />
               <span>Add new task</span>
@@ -199,7 +199,7 @@ const Todo = () => {
                 onClick={() => {
                   setTodos(todos.filter((todo) => !todo.completed));
                 }}
-                className="w-10  duration-1000 bg-[#2C2420] text-white p-2 rounded flex items-center justify-center space-x-2"
+                className="w-10  duration-1000 bg-[#2e2e2e]/60 text-white p-2 rounded flex items-center justify-center space-x-2"
               >
                 <Trash size={20} />
               </button>

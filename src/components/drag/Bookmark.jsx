@@ -285,24 +285,24 @@ const Bookmark = () => {
             </div>
           ) : (
             <>
-              <div className="flex justify-between mb-4 bg-[#2C2420] p-2">
+              <div className="flex justify-between mb-4 bg-[#2e2e2e]/60 p-2 rounded-lg">
                 <button
                   onClick={goBack}
                   disabled={currentPath.length === 0}
-                  className="text-white"
+                  className={`text-white ${currentPath.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   <ChevronLeft size={24} />
                 </button>
                 <div>
                   <button
                     onClick={addFolder}
-                    className="bg-[#3A302A] text-white px-3 py-1 rounded mr-2 text-sm hover:bg-[#4A403A] transition-colors duration-200"
+                    className="bg-[#222222] text-white px-3 py-1 rounded mr-2 text-sm hover:bg-[#4A403A] transition-colors duration-200"
                   >
                     Add Folder
                   </button>
                   <button
                     onClick={addLink}
-                    className="bg-[#3A302A] text-white px-3 py-1 rounded text-sm hover:bg-[#4A403A] transition-colors duration-200"
+                    className="bg-[#222222] text-white px-3 py-1 rounded text-sm hover:bg-[#4A403A] transition-colors duration-200"
                   >
                     Add Link
                   </button>
