@@ -5,7 +5,6 @@ import useRandomPosition from "../../hooks/useRandomPosition";
 import {
   X,
   Folder,
-  Globe,
   ChevronLeft,
   Edit,
   Trash,
@@ -120,7 +119,12 @@ const Bookmark = () => {
 
   const addLink = (linkName, linkUrl) => {
     if (linkName && linkUrl) {
-      const newLink = { type: "link", name: linkName, url: linkUrl };
+      const newLink = {
+        type: "link",
+        name: linkName,
+        url: linkUrl,
+        favicon: `https://www.google.com/s2/favicons?domain=${linkUrl}&sz=64`,
+      };
       const updatedRoot = updateNestedBookmarks(
         rootFolder,
         currentPath,
@@ -170,11 +174,26 @@ const Bookmark = () => {
     return { ...folder, children: updatedChildren };
   };
 
+  const addFaviconToLinks = (bookmarkData) => {
+    if (bookmarkData.type === 'link') {
+      return {
+        ...bookmarkData,
+        favicon: `https://www.google.com/s2/favicons?domain=${bookmarkData.url}&sz=64`
+      };
+    } else if (bookmarkData.type === 'folder' && bookmarkData.children) {
+      return {
+        ...bookmarkData,
+        children: bookmarkData.children.map(addFaviconToLinks)
+      };
+    }
+    return bookmarkData;
+  };
+
   const importBookmarks = () => {
     // eslint-disable-next-line no-undef
     chrome.storage.local.get(["importedBookmarks"], (result) => {
       if (result.importedBookmarks) {
-        const data = result.importedBookmarks[0];
+        const data = addFaviconToLinks(result.importedBookmarks[0]);
         setRootFolder(data);
         setCurrentFolder(data);
         saveBookmarks(data);
@@ -385,7 +404,7 @@ const Bookmark = () => {
                       {item.type === "folder" ? (
                         <Folder className="mr-2" />
                       ) : (
-                        <Globe className="mr-2" />
+                        <img src={item.favicon} alt="" className="w-6 h-6 mr-2" />
                       )}
                       {editingItem === item ? (
                         <input
