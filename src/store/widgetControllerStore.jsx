@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-const useWidgetControllerStore = create((set, get) => ({
+const useWidgetControllerStore = create((set) => ({
   listWidgetOpened: [],
   addWidget: (widgetName, position) =>
     set((state) => {

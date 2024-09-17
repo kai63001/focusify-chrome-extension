@@ -2,9 +2,20 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Draggable from "react-draggable";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import useRandomPosition from "../../hooks/useRandomPosition";
-import { X, Folder, Globe, ChevronLeft, Edit, Trash } from "lucide-react";
+import {
+  X,
+  Folder,
+  Globe,
+  ChevronLeft,
+  Edit,
+  Trash,
+  Menu,
+  FolderPlus,
+  Link,
+} from "lucide-react";
 import ModalAddFolder from "./bookmark/ModalAddFolder";
 import ModalAddLink from "./bookmark/ModalAddLink";
+import ModalDelete from "./bookmark/ModalDelete";
 
 const Bookmark = () => {
   const {
@@ -24,9 +35,11 @@ const Bookmark = () => {
   const [isFirstTime, setIsFirstTime] = useState(true);
   const [contextMenu, setContextMenu] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
-  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
+  const [deleteItem, setDeleteItem] = useState(null);
   const [modalAddFolder, setModalAddFolder] = useState(false);
   const [modalAddLink, setModalAddLink] = useState(false);
+  const [modalDelete, setModalDelete] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const editInputRef = useRef(null);
   const bookmarkRef = useRef(null);
 
@@ -75,18 +88,17 @@ const Bookmark = () => {
     );
   };
 
-  const updateNestedBookmarks = (folder, path, newItem) => {
+  const updateNestedBookmarksRename = (folder, path, updater) => {
     if (path.length === 0) {
-      const updatedChildren = sortItems([...folder.children, newItem]);
-      return { ...folder, children: updatedChildren };
+      return updater(folder);
     }
 
     const [currentIndex, ...restPath] = path;
     const updatedChildren = [...folder.children];
-    updatedChildren[currentIndex] = updateNestedBookmarks(
+    updatedChildren[currentIndex] = updateNestedBookmarksRename(
       folder.children[currentIndex],
       restPath,
-      newItem
+      updater
     );
 
     return { ...folder, children: updatedChildren };
@@ -141,6 +153,23 @@ const Bookmark = () => {
     }
   };
 
+  const updateNestedBookmarks = (folder, path, newItem) => {
+    if (path.length === 0) {
+      const updatedChildren = sortItems([...folder.children, newItem]);
+      return { ...folder, children: updatedChildren };
+    }
+
+    const [currentIndex, ...restPath] = path;
+    const updatedChildren = [...folder.children];
+    updatedChildren[currentIndex] = updateNestedBookmarks(
+      folder.children[currentIndex],
+      restPath,
+      newItem
+    );
+
+    return { ...folder, children: updatedChildren };
+  };
+
   const importBookmarks = () => {
     // eslint-disable-next-line no-undef
     chrome.storage.local.get(["importedBookmarks"], (result) => {
@@ -190,43 +219,51 @@ const Bookmark = () => {
     setContextMenu(null);
   };
 
-  const handleDelete = () => {
-    setDeleteConfirmation(contextMenu.item);
-    setContextMenu(null);
-  };
-
   const confirmDelete = () => {
-    const updatedChildren = currentFolder.children.filter(
-      (_, index) => index !== contextMenu.index
-    );
-    const updatedRoot = updateNestedBookmarks(
+    if (!deleteItem) return;
+
+    const updatedRoot = updateNestedBookmarksRename(
       rootFolder,
-      currentPath.slice(0, -1),
-      { ...currentFolder, children: updatedChildren }
+      currentPath,
+      (folder) => {
+        const updatedChildren = folder.children.filter(
+          (item) => item !== deleteItem
+        );
+        return { ...folder, children: updatedChildren };
+      }
     );
+
     setRootFolder(updatedRoot);
-    setCurrentFolder({ ...currentFolder, children: updatedChildren });
+    setCurrentFolder(
+      currentPath.length === 0
+        ? updatedRoot
+        : updatedRoot.children[currentPath[currentPath.length - 1]]
+    );
     saveBookmarks(updatedRoot);
-    setDeleteConfirmation(null);
+    setDeleteItem(null);
+    setModalDelete(false);
   };
 
-  const handleRename = (e) => {
-    console.log(e.key);
-    if (e.key === "Enter") {
+  const handleRename = (e, item, index) => {
+    if (e.key === "Enter" || e.type === "blur") {
       const newName = e.target.value.trim();
-      if (newName) {
-        const updatedItem = { ...editingItem, name: newName };
-        const updatedChildren = currentFolder.children.map((item) =>
-          item === editingItem ? updatedItem : item
-        );
-        const updatedRoot = updateNestedBookmarks(
+      if (newName && newName !== item.name) {
+        const updatedRoot = updateNestedBookmarksRename(
           rootFolder,
-          currentPath.slice(0, -1),
-          { ...currentFolder, children: updatedChildren }
+          currentPath,
+          (folder) => {
+            const updatedChildren = [...folder.children];
+            updatedChildren[index] = { ...item, name: newName };
+            return { ...folder, children: updatedChildren };
+          }
         );
 
         setRootFolder(updatedRoot);
-        setCurrentFolder({ ...currentFolder, children: updatedChildren });
+        setCurrentFolder(
+          currentPath.length === 0
+            ? updatedRoot
+            : updatedRoot.children[currentPath[currentPath.length - 1]]
+        );
         saveBookmarks(updatedRoot);
       }
       setEditingItem(null);
@@ -287,31 +324,54 @@ const Bookmark = () => {
               </div>
             ) : (
               <>
-                <div className="flex justify-between mb-4 bg-[#2e2e2e]/60 p-2 rounded-lg">
-                  <button
-                    onClick={goBack}
-                    disabled={currentPath.length === 0}
-                    className={`text-white ${
-                      currentPath.length === 0
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
-                  <div>
+                <div className="flex justify-between p-2 -mt-4 rounded-lg">
+                  <div className="flex items-center">
                     <button
-                      onClick={() => setModalAddFolder(true)}
-                      className="bg-[#222222] text-white px-3 py-1 rounded mr-2 text-sm hover:bg-[#4A403A] transition-colors duration-200"
+                      onClick={goBack}
+                      disabled={currentPath.length === 0}
+                      className={`text-white ${
+                        currentPath.length === 0
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
                     >
-                      Add Folder
+                      <ChevronLeft size={24} />
                     </button>
+                    <span className="text-white text-md ml-3">
+                      {currentFolder.name}
+                    </span>
+                  </div>
+                  <div className="relative">
                     <button
-                      onClick={() => setModalAddLink(true)}
-                      className="bg-[#222222] text-white px-3 py-1 rounded text-sm hover:bg-[#4A403A] transition-colors duration-200"
+                      onClick={() => setIsMenuOpen(!isMenuOpen)}
+                      className=" text-white px-3 py-1 rounded text-smtransition-colors duration-200 flex items-center"
                     >
-                      Add Link
+                      <Menu size={24} className="" />
                     </button>
+                    {isMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-[#222222] rounded-md shadow-lg z-10">
+                        <button
+                          onClick={() => {
+                            setModalAddFolder(true);
+                            setIsMenuOpen(false);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-[#4A403A] transition-colors duration-200"
+                        >
+                          <FolderPlus size={16} className="mr-2" />
+                          Add Folder
+                        </button>
+                        <button
+                          onClick={() => {
+                            setModalAddLink(true);
+                            setIsMenuOpen(false);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-[#4A403A] transition-colors duration-200"
+                        >
+                          <Link size={16} className="mr-2" />
+                          Add Link
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <ul className="space-y-2">
@@ -331,7 +391,7 @@ const Bookmark = () => {
                         <input
                           ref={editInputRef}
                           defaultValue={item.name}
-                          onKeyDown={handleRename}
+                          onKeyDown={(e) => handleRename(e, item, index)}
                           onBlur={() => setEditingItem(null)}
                           className="bg-transparent border-b border-white outline-none"
                         />
@@ -357,7 +417,11 @@ const Bookmark = () => {
               </button>
               <button
                 className="flex items-center text-red-600 hover:bg-gray-100 px-2 py-1"
-                onClick={handleDelete}
+                onClick={() => {
+                  setModalDelete(true);
+                  setDeleteItem(contextMenu.item);
+                  setContextMenu(null);
+                }}
               >
                 <Trash size={16} className="mr-2" /> Delete
               </button>
@@ -377,6 +441,13 @@ const Bookmark = () => {
           isOpen={modalAddLink}
           onClose={() => setModalAddLink(false)}
           onAddLink={addLink}
+        />
+      )}
+      {modalDelete && (
+        <ModalDelete
+          isOpen={modalDelete}
+          onClose={() => setModalDelete(false)}
+          onDelete={confirmDelete}
         />
       )}
     </>
