@@ -313,6 +313,7 @@ const Bookmark = () => {
           height={size.height}
           minConstraints={[400, 300]}
           maxConstraints={[800, 600]}
+          style={{ zIndex: 40 + zIndex }}
           className="absolute"
           onResizeStop={(e, data) => {
             const newSize = { width: data.size.width, height: data.size.height };
@@ -323,8 +324,7 @@ const Bookmark = () => {
         >
           <div
             ref={bookmarkRef}
-            className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden flex flex-col"
-            style={{ zIndex: 40 + zIndex, width: "100%", height: "100%" }}
+            className="absolute w-full h-full bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden flex flex-col"
             onClick={() => bringToFront("Bookmark")}
           >
             <div

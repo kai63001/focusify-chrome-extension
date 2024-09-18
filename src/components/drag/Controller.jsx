@@ -3,12 +3,14 @@ import Todo from "./Todo";
 import Bookmark from "./Bookmark";
 import Note from "./Note";
 
+// Un-Dragable Widgets
+import Clock from "../widget/clock";
+import Settings from "../widget/settings";
 // Icons
-import { House, Settings, Timer, Folder, FileText } from "lucide-react";
+import { House, Timer, Folder, FileText, FileCheck } from "lucide-react";
 
 // Store
 import useWidgetControllerStore from "../../store/widgetControllerStore";
-import { FileCheck } from "lucide-react";
 
 // Hooks
 import { useEffect } from "react";
@@ -58,7 +60,7 @@ const Controller = () => {
   ];
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full select-none overflow-hidden">
       <div className="absolute bottom-4 left-0 z-50 w-full flex justify-center items-center px-4">
         <div className="p-3 bg-[#221B15]/70 backdrop-blur-lg rounded-lg w-full flex justify-between items-center">
           {/* start with time format with AM AND PM */}
@@ -84,7 +86,9 @@ const Controller = () => {
               {listMiddleMenu.map((item, index) => (
                 <button
                   key={index}
-                  className="text-white text-md font-bold px-2 py-1 rounded-md hover:bg-white/10"
+                  className={`text-white text-md font-bold px-2 py-1 rounded-md hover:bg-white/10 ${
+                    isWidgetOpen(item.name)(state) ? "bg-white/10" : ""
+                  }`}
                   onClick={() => toggleWidget(item.name)}
                 >
                   {item.icon}
@@ -93,17 +97,16 @@ const Controller = () => {
             </div>
           </div>
           {/* end with user settings */}
-          <div className="text-white text-md font-bold">
-            <button onClick={() => toggleWidget("Settings")}>
-              <Settings size={24} />
-            </button>
-          </div>
+          <Settings />
         </div>
       </div>
+      {/* Dragable Widgets */}
       {isWidgetOpen("Pomodoro")(state) && <Pomodoro />}
       {isWidgetOpen("Todo")(state) && <Todo />}
       {isWidgetOpen("Bookmark")(state) && <Bookmark />}
       {isWidgetOpen("Note")(state) && <Note />}
+      {/* Un-Dragable Widgets */}
+      {isWidgetOpen("Clock")(state) && <Clock />}
     </div>
   );
 };

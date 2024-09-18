@@ -6,15 +6,28 @@ const useWidgetControllerStore = create((set) => ({
     set((state) => {
       const newList = [
         ...state.listWidgetOpened,
-        { name: widgetName, zIndex: state.listWidgetOpened.length, position, size },
+        {
+          name: widgetName,
+          zIndex: state.listWidgetOpened.length,
+          position,
+          size,
+        },
       ];
       localStorage.setItem("widgetState", JSON.stringify(newList));
       return { listWidgetOpened: newList };
     }),
   removeAllWidgets: () =>
-    set(() => {
-      localStorage.removeItem("widgetState");
-      return { listWidgetOpened: [] };
+    set((state) => {
+      //remove Pomodoro, Todo, Bookmark, Note
+      const newList = state.listWidgetOpened.filter(
+        (widget) =>
+          widget.name !== "Pomodoro" &&
+          widget.name !== "Todo" &&
+          widget.name !== "Bookmark" &&
+          widget.name !== "Note"
+      );
+      localStorage.setItem("widgetState", JSON.stringify(newList));
+      return { listWidgetOpened: newList };
     }),
   removeWidget: (widgetName) =>
     set((state) => {

@@ -45,12 +45,12 @@ const Todo = () => {
   const [position, setPosition] = useRandomPosition("Todo");
   const [todos, setTodos] = useTodos();
   const [draggedTodo, setDraggedTodo] = useState(null);
-  const [size, setSize] = useState({ width: 300, height: 400 });
+  const [size, setSize] = useState({ width: 500, height: 180 });
 
   useEffect(() => {
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
     const todoWidget = savedState.find(widget => widget.name === "Todo");
-    const savedSize = todoWidget?.size || { width: 300, height: 400 };
+    const savedSize = todoWidget?.size || { width: 500, height: 180 };
     setSize(savedSize);
     addWidget("Todo", position, savedSize);
   }, [addWidget, position]);
@@ -123,8 +123,9 @@ const Todo = () => {
         width={size.width}
         height={size.height}
         className="absolute"
-        minConstraints={[200, 300]}
-        maxConstraints={[400, 600]}
+        minConstraints={[200, 180]}
+        maxConstraints={[700, 1000]}
+        style={{ zIndex: 40 + zIndex }}
         onResizeStop={(e, data) => {
           const newSize = { width: data.size.width, height: data.size.height };
           setSize(newSize);
@@ -135,8 +136,7 @@ const Todo = () => {
         }
       >
         <div
-          className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden flex flex-col"
-          style={{ zIndex: 40 + zIndex, width: "100%", height: "100%" }}
+          className="absolute w-full h-full bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden flex flex-col"
           onClick={() => bringToFront("Todo")}
         >
           <div

@@ -90,6 +90,7 @@ const Pomodoro = () => {
       <ResizableBox
         width={size.width}
         height={size.height}
+        style={{ zIndex: 40 + zIndex }}
         minConstraints={[200, 150]}
         maxConstraints={[400, 300]}
         className="absolute"
@@ -101,8 +102,7 @@ const Pomodoro = () => {
         handle={<div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize" />}
       >
         <div
-          className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden flex flex-col"
-          style={{ zIndex: 40 + zIndex, width: "100%", height: "100%" }}
+          className="absolute w-full h-full bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden flex flex-col"
           onClick={() => bringToFront("Pomodoro")}
         >
           <div
