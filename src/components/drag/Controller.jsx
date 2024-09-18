@@ -1,10 +1,10 @@
-// Widgets
 import Pomodoro from "./Pomodoro";
 import Todo from "./Todo";
 import Bookmark from "./Bookmark";
+import Note from "./Note";
 
 // Icons
-import { House, Settings, Timer, Folder } from "lucide-react";
+import { House, Settings, Timer, Folder, FileText } from "lucide-react";
 
 // Store
 import useWidgetControllerStore from "../../store/widgetControllerStore";
@@ -16,6 +16,7 @@ import { useEffect } from "react";
 const Controller = () => {
   const {
     addWidget,
+    removeAllWidgets,
     removeWidget,
     isWidgetOpen,
     bringToFront,
@@ -50,10 +51,14 @@ const Controller = () => {
       name: "Todo",
       icon: <FileCheck size={24} />,
     },
+    {
+      name: "Note",
+      icon: <FileText size={24} />,
+    },
   ];
 
   return (
-    <>
+    <div className="h-full w-full">
       <div className="absolute bottom-4 left-0 z-50 w-full flex justify-center items-center px-4">
         <div className="p-3 bg-[#221B15]/70 backdrop-blur-lg rounded-lg w-full flex justify-between items-center">
           {/* start with time format with AM AND PM */}
@@ -66,7 +71,12 @@ const Controller = () => {
           </div>
           {/* main center is a controller compoenent */}
           <div className="flex justify-center items-center space-x-5">
-            <button className="text-white text-md font-bold px-2 py-1 rounded-md hover:bg-white/10">
+            <button
+              onClick={() => {
+                removeAllWidgets();
+              }}
+              className="text-white text-md font-bold px-2 py-1 rounded-md hover:bg-white/10"
+            >
               <House size={24} />
             </button>
             <div className="mx-10 h-6 w-px bg-white/30"></div>
@@ -93,7 +103,8 @@ const Controller = () => {
       {isWidgetOpen("Pomodoro")(state) && <Pomodoro />}
       {isWidgetOpen("Todo")(state) && <Todo />}
       {isWidgetOpen("Bookmark")(state) && <Bookmark />}
-    </>
+      {isWidgetOpen("Note")(state) && <Note />}
+    </div>
   );
 };
 

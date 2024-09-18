@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import Draggable from "react-draggable";
+import { ResizableBox } from "react-resizable";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import useRandomPosition from "../../hooks/useRandomPosition";
 import { Play, Pause, RefreshCcw, X } from "lucide-react";
+import "react-resizable/css/styles.css";
 
 const Pomodoro = () => {
   const {
@@ -11,19 +13,23 @@ const Pomodoro = () => {
     removeWidget,
     addWidget,
     updateWidgetPosition,
+    updateWidgetSize,
   } = useWidgetControllerStore();
-  const zIndex = getWidgetZIndex("Pomodoro")(
-    useWidgetControllerStore.getState()
-  );
+  const zIndex = getWidgetZIndex("Pomodoro")(useWidgetControllerStore.getState());
   const [position, setPosition] = useRandomPosition("Pomodoro");
 
   const [time, setTime] = useState(25 * 60); // 25 minutes in seconds
   const [isActive, setIsActive] = useState(false);
   const workerRef = useRef(null);
+  const [size, setSize] = useState({ width: 300, height: 200 });
 
   useEffect(() => {
-    addWidget("Pomodoro", position);
-  }, []);
+    const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
+    const pomodoroWidget = savedState.find(widget => widget.name === "Pomodoro");
+    const savedSize = pomodoroWidget?.size || { width: 300, height: 200 };
+    setSize(savedSize);
+    addWidget("Pomodoro", position, savedSize);
+  }, [addWidget, position]);
 
   useEffect(() => {
     const savedTime = localStorage.getItem("pomodoroTime");
@@ -81,50 +87,64 @@ const Pomodoro = () => {
         updateWidgetPosition("Pomodoro", { x: data.x, y: data.y });
       }}
     >
-      <div
-        className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden"
-        style={{ zIndex: 40 + zIndex, width: "300px" }}
-        onClick={() => bringToFront("Pomodoro")}
+      <ResizableBox
+        width={size.width}
+        height={size.height}
+        minConstraints={[200, 150]}
+        maxConstraints={[400, 300]}
+        className="absolute"
+        onResizeStop={(e, data) => {
+          const newSize = { width: data.size.width, height: data.size.height };
+          setSize(newSize);
+          updateWidgetSize("Pomodoro", newSize);
+        }}
+        handle={<div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize" />}
       >
         <div
-          id="dragHandle"
-          className="text-white px-4 py-2 flex justify-between items-ceter cursor-move"
+          className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden flex flex-col"
+          style={{ zIndex: 40 + zIndex, width: "100%", height: "100%" }}
+          onClick={() => bringToFront("Pomodoro")}
         >
-          <span>Pomodoro Timer</span>
-          <X
-            size={16}
-            className="cursor-pointer"
-            onClick={() => {
-              removeWidget("Pomodoro");
-            }}
-          />
-        </div>
-        <div className="p-4 text-center">
-          <div className="text-4xl font-bold text-white mb-4">
-            {formatTime(time)}
+          <div
+            id="dragHandle"
+            className="text-white px-4 py-2 flex justify-between items-ceter cursor-move"
+          >
+            <span>Pomodoro Timer</span>
+            <X
+              size={16}
+              className="cursor-pointer"
+              onClick={() => {
+                removeWidget("Pomodoro");
+              }}
+            />
           </div>
-          <div className="space-x-2">
-            <button
-              onClick={toggleTimer}
-              className="border-[#ed974d]   border duration-300 hover:bg-[#ed974d]/20 text-white font-bold py-2 px-7 rounded"
-            >
-              {isActive ? (
-                <Pause size={24} className="text-[#ed974d]" />
-              ) : (
-                <Play size={24} className="text-[#ed974d]" />
-              )}
-            </button>
-            {!isActive && (
+          <div className="p-4 text-center">
+            <div className="text-4xl font-bold text-white mb-4">
+              {formatTime(time)}
+            </div>
+            <div className="space-x-2">
               <button
-                onClick={resetTimer}
-                className="duration-300  text-white font-bold py-2 px-4 rounded"
+                onClick={toggleTimer}
+                className="border-[#ed974d]   border duration-300 hover:bg-[#ed974d]/20 text-white font-bold py-2 px-7 rounded"
               >
-                <RefreshCcw size={24} className="text-white" />
+                {isActive ? (
+                  <Pause size={24} className="text-[#ed974d]" />
+                ) : (
+                  <Play size={24} className="text-[#ed974d]" />
+                )}
               </button>
-            )}
+              {!isActive && (
+                <button
+                  onClick={resetTimer}
+                  className="duration-300  text-white font-bold py-2 px-4 rounded"
+                >
+                  <RefreshCcw size={24} className="text-white" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </ResizableBox>
     </Draggable>
   );
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Draggable from "react-draggable";
+import { ResizableBox } from "react-resizable";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import useRandomPosition from "../../hooks/useRandomPosition";
 import {
@@ -15,6 +16,7 @@ import {
 import ModalAddFolder from "./bookmark/ModalAddFolder";
 import ModalAddLink from "./bookmark/ModalAddLink";
 import ModalDelete from "./bookmark/ModalDelete";
+import "react-resizable/css/styles.css";
 
 const Bookmark = () => {
   const {
@@ -23,6 +25,7 @@ const Bookmark = () => {
     removeWidget,
     addWidget,
     updateWidgetPosition,
+    updateWidgetSize,
   } = useWidgetControllerStore();
   const zIndex = getWidgetZIndex("Bookmark")(
     useWidgetControllerStore.getState()
@@ -41,9 +44,14 @@ const Bookmark = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const editInputRef = useRef(null);
   const bookmarkRef = useRef(null);
+  const [size, setSize] = useState({ width: 600, height: 400 });
 
   useEffect(() => {
-    addWidget("Bookmark", position);
+    const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
+    const bookmarkWidget = savedState.find(widget => widget.name === "Bookmark");
+    const savedSize = bookmarkWidget?.size || { width: 600, height: 400 };
+    setSize(savedSize);
+    addWidget("Bookmark", position, savedSize);
   }, [addWidget, position]);
 
   const sortItems = (items) => {
@@ -300,153 +308,167 @@ const Bookmark = () => {
           updateWidgetPosition("Bookmark", { x: data.x, y: data.y });
         }}
       >
-        <div
-          ref={bookmarkRef}
-          className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden w-[600px] h-[400px] flex flex-col"
-          style={{ zIndex: 40 + zIndex }}
-          onClick={() => bringToFront("Bookmark")}
+        <ResizableBox
+          width={size.width}
+          height={size.height}
+          minConstraints={[400, 300]}
+          maxConstraints={[800, 600]}
+          className="absolute"
+          onResizeStop={(e, data) => {
+            const newSize = { width: data.size.width, height: data.size.height };
+            setSize(newSize);
+            updateWidgetSize("Bookmark", newSize);
+          }}
+          handle={<div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize" />}
         >
           <div
-            id="dragHandle"
-            className="text-white px-4 py-2 flex justify-between items-center cursor-move"
+            ref={bookmarkRef}
+            className="absolute bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden flex flex-col"
+            style={{ zIndex: 40 + zIndex, width: "100%", height: "100%" }}
+            onClick={() => bringToFront("Bookmark")}
           >
-            <span>Bookmarks</span>
-            <X
-              size={16}
-              className="cursor-pointer"
-              onClick={() => removeWidget("Bookmark")}
-            />
-          </div>
-          <div className="flex-grow overflow-auto p-4">
-            {isFirstTime ? (
-              <div className="text-white text-center">
-                <p>
-                  Welcome to Bookmarks! Would you like to import your existing
-                  bookmarks?
-                </p>
-                <button
-                  onClick={importBookmarks}
-                  className="px-4 py-2 rounded mt-4 border hover:bg-white hover:text-black duration-300"
-                >
-                  Import Bookmarks
-                </button>
+            <div
+              id="dragHandle"
+              className="text-white px-4 py-2 flex justify-between items-center cursor-move"
+            >
+              <span>Bookmarks</span>
+              <X
+                size={16}
+                className="cursor-pointer"
+                onClick={() => removeWidget("Bookmark")}
+              />
+            </div>
+            <div className="flex-grow overflow-auto p-4">
+              {isFirstTime ? (
+                <div className="text-white text-center">
+                  <p>
+                    Welcome to Bookmarks! Would you like to import your existing
+                    bookmarks?
+                  </p>
+                  <button
+                    onClick={importBookmarks}
+                    className="px-4 py-2 rounded mt-4 border hover:bg-white hover:text-black duration-300"
+                  >
+                    Import Bookmarks
+                  </button>
 
+                  <button
+                    onClick={() => {
+                      setIsFirstTime(false);
+                      localStorage.setItem("bookmarkFirstTime", "false");
+                    }}
+                    className="ml-3 px-4 py-2 rounded mt-4 "
+                  >
+                    No, thanks
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-between p-2 -mt-4 rounded-lg">
+                    <div className="flex items-center">
+                      <button
+                        onClick={goBack}
+                        disabled={currentPath.length === 0}
+                        className={`text-white ${
+                          currentPath.length === 0
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                      >
+                        <ChevronLeft size={24} />
+                      </button>
+                      <span className="text-white text-md ml-3">
+                        {currentFolder.name}
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className=" text-white px-3 py-1 rounded text-smtransition-colors duration-200 flex items-center"
+                      >
+                        <Menu size={24} className="" />
+                      </button>
+                      {isMenuOpen && (
+                        <div className="absolute right-0 mt-2 w-48 bg-[#222222] rounded-md shadow-lg z-10">
+                          <button
+                            onClick={() => {
+                              setModalAddFolder(true);
+                              setIsMenuOpen(false);
+                            }}
+                            className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-[#4A403A] transition-colors duration-200"
+                          >
+                            <FolderPlus size={16} className="mr-2" />
+                            Add Folder
+                          </button>
+                          <button
+                            onClick={() => {
+                              setModalAddLink(true);
+                              setIsMenuOpen(false);
+                            }}
+                            className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-[#4A403A] transition-colors duration-200"
+                          >
+                            <Link size={16} className="mr-2" />
+                            Add Link
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <ul className="space-y-2">
+                    {sortItems(currentFolder.children).map((item, index) => (
+                      <li
+                        key={index}
+                        className="flex items-center text-white cursor-pointer hover:bg-gray-700 p-2 rounded"
+                        onClick={() => handleItemClick(item, index)}
+                        onContextMenu={(e) => handleContextMenu(e, item, index)}
+                      >
+                        {item.type === "folder" ? (
+                          <Folder className="mr-2" />
+                        ) : (
+                          <img src={item.favicon} alt="" className="w-6 h-6 mr-2" />
+                        )}
+                        {editingItem === item ? (
+                          <input
+                            ref={editInputRef}
+                            defaultValue={item.name}
+                            onKeyDown={(e) => handleRename(e, item, index)}
+                            onBlur={() => setEditingItem(null)}
+                            className="bg-transparent border-b border-white outline-none"
+                          />
+                        ) : (
+                          item.name
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+            {contextMenu && (
+              <div
+                className="absolute bg-white rounded shadow-md py-2 px-4"
+                style={{ top: contextMenu.y, left: contextMenu.x }}
+              >
                 <button
-                  onClick={() => {
-                    setIsFirstTime(false);
-                    localStorage.setItem("bookmarkFirstTime", "false");
-                  }}
-                  className="ml-3 px-4 py-2 rounded mt-4 "
+                  className="flex items-center text-gray-700 hover:bg-gray-100 px-2 py-1"
+                  onClick={handleEdit}
                 >
-                  No, thanks
+                  <Edit size={16} className="mr-2" /> Edit
+                </button>
+                <button
+                  className="flex items-center text-red-600 hover:bg-gray-100 px-2 py-1"
+                  onClick={() => {
+                    setModalDelete(true);
+                    setDeleteItem(contextMenu.item);
+                    setContextMenu(null);
+                  }}
+                >
+                  <Trash size={16} className="mr-2" /> Delete
                 </button>
               </div>
-            ) : (
-              <>
-                <div className="flex justify-between p-2 -mt-4 rounded-lg">
-                  <div className="flex items-center">
-                    <button
-                      onClick={goBack}
-                      disabled={currentPath.length === 0}
-                      className={`text-white ${
-                        currentPath.length === 0
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      <ChevronLeft size={24} />
-                    </button>
-                    <span className="text-white text-md ml-3">
-                      {currentFolder.name}
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsMenuOpen(!isMenuOpen)}
-                      className=" text-white px-3 py-1 rounded text-smtransition-colors duration-200 flex items-center"
-                    >
-                      <Menu size={24} className="" />
-                    </button>
-                    {isMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-48 bg-[#222222] rounded-md shadow-lg z-10">
-                        <button
-                          onClick={() => {
-                            setModalAddFolder(true);
-                            setIsMenuOpen(false);
-                          }}
-                          className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-[#4A403A] transition-colors duration-200"
-                        >
-                          <FolderPlus size={16} className="mr-2" />
-                          Add Folder
-                        </button>
-                        <button
-                          onClick={() => {
-                            setModalAddLink(true);
-                            setIsMenuOpen(false);
-                          }}
-                          className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-[#4A403A] transition-colors duration-200"
-                        >
-                          <Link size={16} className="mr-2" />
-                          Add Link
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <ul className="space-y-2">
-                  {sortItems(currentFolder.children).map((item, index) => (
-                    <li
-                      key={index}
-                      className="flex items-center text-white cursor-pointer hover:bg-gray-700 p-2 rounded"
-                      onClick={() => handleItemClick(item, index)}
-                      onContextMenu={(e) => handleContextMenu(e, item, index)}
-                    >
-                      {item.type === "folder" ? (
-                        <Folder className="mr-2" />
-                      ) : (
-                        <img src={item.favicon} alt="" className="w-6 h-6 mr-2" />
-                      )}
-                      {editingItem === item ? (
-                        <input
-                          ref={editInputRef}
-                          defaultValue={item.name}
-                          onKeyDown={(e) => handleRename(e, item, index)}
-                          onBlur={() => setEditingItem(null)}
-                          className="bg-transparent border-b border-white outline-none"
-                        />
-                      ) : (
-                        item.name
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </>
             )}
           </div>
-          {contextMenu && (
-            <div
-              className="absolute bg-white rounded shadow-md py-2 px-4"
-              style={{ top: contextMenu.y, left: contextMenu.x }}
-            >
-              <button
-                className="flex items-center text-gray-700 hover:bg-gray-100 px-2 py-1"
-                onClick={handleEdit}
-              >
-                <Edit size={16} className="mr-2" /> Edit
-              </button>
-              <button
-                className="flex items-center text-red-600 hover:bg-gray-100 px-2 py-1"
-                onClick={() => {
-                  setModalDelete(true);
-                  setDeleteItem(contextMenu.item);
-                  setContextMenu(null);
-                }}
-              >
-                <Trash size={16} className="mr-2" /> Delete
-              </button>
-            </div>
-          )}
-        </div>
+        </ResizableBox>
       </Draggable>
       {modalAddFolder && (
         <ModalAddFolder
