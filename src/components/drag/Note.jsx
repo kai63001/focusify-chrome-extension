@@ -24,6 +24,7 @@ const Note = () => {
   useEffect(() => {
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
     const noteWidget = savedState.find((widget) => widget.name === "Note");
+    if (!noteWidget) return;
     const savedSize = noteWidget?.size || { width: 800, height: 500 };
     setSize(savedSize);
     addWidget("Note", position, savedSize);

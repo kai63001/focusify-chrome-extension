@@ -26,6 +26,7 @@ const Pomodoro = () => {
   useEffect(() => {
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
     const pomodoroWidget = savedState.find(widget => widget.name === "Pomodoro");
+    if (!pomodoroWidget) return;
     const savedSize = pomodoroWidget?.size || { width: 300, height: 200 };
     setSize(savedSize);
     addWidget("Pomodoro", position, savedSize);

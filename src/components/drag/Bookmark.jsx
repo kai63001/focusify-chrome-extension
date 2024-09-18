@@ -49,6 +49,7 @@ const Bookmark = () => {
   useEffect(() => {
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
     const bookmarkWidget = savedState.find(widget => widget.name === "Bookmark");
+    if (!bookmarkWidget) return;
     const savedSize = bookmarkWidget?.size || { width: 600, height: 400 };
     setSize(savedSize);
     addWidget("Bookmark", position, savedSize);
