@@ -44,9 +44,9 @@ const Note = () => {
   }, [activeNoteIndex]);
 
   const addNewNote = () => {
-    const newNotes = [...notes, { title: "New Note", content: "" }];
+    const newNotes = [{ title: "New Note", content: "" }, ...notes];
     setNotes(newNotes);
-    setActiveNoteIndex(newNotes.length - 1);
+    setActiveNoteIndex(0);
   };
 
   const updateNoteContent = (content) => {

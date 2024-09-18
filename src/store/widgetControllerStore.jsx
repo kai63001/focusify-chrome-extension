@@ -1,7 +1,17 @@
 import { create } from "zustand";
+const defaultWidget = [
+  {
+    name: "Clock",
+    zIndex: 0,
+    position: { x: 0, y: 0 },
+    size: { width: 200, height: 200 },
+  },
+];
 
 const useWidgetControllerStore = create((set) => ({
   listWidgetOpened: [],
+  rememberWidgetPosition:
+    localStorage.getItem("rememberWidgetPosition") === "true" ? true : false,
   addWidget: (widgetName, position, size) =>
     set((state) => {
       const newList = [
@@ -13,7 +23,9 @@ const useWidgetControllerStore = create((set) => ({
           size,
         },
       ];
-      localStorage.setItem("widgetState", JSON.stringify(newList));
+      if (state.rememberWidgetPosition) {
+        localStorage.setItem("widgetState", JSON.stringify(newList));
+      }
       return { listWidgetOpened: newList };
     }),
   removeAllWidgets: () =>
@@ -46,7 +58,9 @@ const useWidgetControllerStore = create((set) => ({
           ? { ...widget, zIndex: state.listWidgetOpened.length - 1 }
           : { ...widget, zIndex: widget.zIndex > 0 ? widget.zIndex - 1 : 0 }
       );
-      localStorage.setItem("widgetState", JSON.stringify(newList));
+      if (state.rememberWidgetPosition) {
+        localStorage.setItem("widgetState", JSON.stringify(newList));
+      }
       return { listWidgetOpened: newList };
     }),
   getWidgetZIndex: (widgetName) => (state) =>
@@ -57,7 +71,9 @@ const useWidgetControllerStore = create((set) => ({
       const newList = state.listWidgetOpened.map((widget) =>
         widget.name === widgetName ? { ...widget, position } : widget
       );
-      localStorage.setItem("widgetState", JSON.stringify(newList));
+      if (state.rememberWidgetPosition) {
+        localStorage.setItem("widgetState", JSON.stringify(newList));
+      }
       return { listWidgetOpened: newList };
     }),
   updateWidgetSize: (widgetName, size) =>
@@ -65,13 +81,28 @@ const useWidgetControllerStore = create((set) => ({
       const newList = state.listWidgetOpened.map((widget) =>
         widget.name === widgetName ? { ...widget, size } : widget
       );
-      localStorage.setItem("widgetState", JSON.stringify(newList));
+      if (state.rememberWidgetPosition) {
+        localStorage.setItem("widgetState", JSON.stringify(newList));
+      }
       return { listWidgetOpened: newList };
     }),
   initializeFromLocalStorage: () => {
-    const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
-    set({ listWidgetOpened: savedState });
+    let savedState = JSON.parse(
+      localStorage.getItem("widgetState") || JSON.stringify(defaultWidget)
+    );
+    const rememberWidgetPosition =
+      localStorage.getItem("rememberWidgetPosition") === "true";
+    if (!rememberWidgetPosition) {
+      localStorage.setItem("widgetState", JSON.stringify(defaultWidget));
+      savedState = defaultWidget;
+    }
+    set({ listWidgetOpened: savedState, rememberWidgetPosition });
   },
+  setRememberWidgetPosition: (value) =>
+    set(() => {
+      localStorage.setItem("rememberWidgetPosition", value);
+      return { rememberWidgetPosition: value };
+    }),
 }));
 
 export default useWidgetControllerStore;

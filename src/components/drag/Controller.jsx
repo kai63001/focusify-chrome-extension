@@ -28,6 +28,7 @@ const Controller = () => {
 
   useEffect(() => {
     initializeFromLocalStorage();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleWidget = (widgetName) => {
