@@ -13,9 +13,10 @@ import { House, Timer, Folder, FileText, FileCheck } from "lucide-react";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 
 // Hooks
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Controller = () => {
+  const [userData, setUserData] = useState(null);
   const {
     addWidget,
     removeAllWidgets,
@@ -28,8 +29,16 @@ const Controller = () => {
 
   useEffect(() => {
     initializeFromLocalStorage();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const fetchUserData = async () => {
+    const storedName = localStorage.getItem("userName");
+    if (storedName) {
+      setUserData({ name: storedName });
+    }
+  };
 
   const toggleWidget = (widgetName) => {
     const isOpen = isWidgetOpen(widgetName)(state);
@@ -98,7 +107,12 @@ const Controller = () => {
             </div>
           </div>
           {/* end with user settings */}
-          <Settings />
+          <div className="flex items-center space-x-3">
+            <div className="text-white text-md font-bold">
+              Hello, {userData?.name}
+            </div>
+            <Settings />
+          </div>
         </div>
       </div>
       {/* Dragable Widgets */}

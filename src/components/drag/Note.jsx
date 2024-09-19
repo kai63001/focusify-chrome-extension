@@ -22,16 +22,16 @@ const Note = () => {
   const textareaRef = useRef(null);
   const [size, setSize] = useState({ width: 800, height: 500 });
   useEffect(() => {
+    const savedNotes = JSON.parse(localStorage.getItem("notes") || "[]");
+    if (savedNotes.length > 0) {
+      setNotes(savedNotes);
+    } 
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
     const noteWidget = savedState.find((widget) => widget.name === "Note");
     if (!noteWidget) return;
     const savedSize = noteWidget?.size || { width: 800, height: 500 };
     setSize(savedSize);
     addWidget("Note", position, savedSize);
-    const savedNotes = JSON.parse(localStorage.getItem("notes") || "[]");
-    if (savedNotes.length > 0) {
-      setNotes(savedNotes);
-    } 
   }, [addWidget, position])
 
   useEffect(() => {

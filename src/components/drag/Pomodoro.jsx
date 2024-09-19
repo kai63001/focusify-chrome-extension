@@ -27,6 +27,7 @@ const Pomodoro = () => {
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
     const pomodoroWidget = savedState.find(widget => widget.name === "Pomodoro");
     if (!pomodoroWidget) return;
+    console.log(pomodoroWidget);
     const savedSize = pomodoroWidget?.size || { width: 300, height: 200 };
     setSize(savedSize);
     addWidget("Pomodoro", position, savedSize);

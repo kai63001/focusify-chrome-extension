@@ -50,6 +50,7 @@ const Todo = () => {
   useEffect(() => {
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
     const todoWidget = savedState.find(widget => widget.name === "Todo");
+    if (!todoWidget) return;
     const savedSize = todoWidget?.size || { width: 500, height: 180 };
     setSize(savedSize);
     addWidget("Todo", position, savedSize);
