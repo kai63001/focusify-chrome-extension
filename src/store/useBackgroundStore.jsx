@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 const useBackgroundStore = create(
     persist(
         (set) => ({
-            background: 'https://images7.alphacoders.com/137/1375523.png', // Default background
+            background: 'https://images4.alphacoders.com/135/1354757.png',
             setBackground: (background) => set({ background }),
         }),
         {
