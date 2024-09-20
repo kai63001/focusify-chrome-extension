@@ -49,17 +49,37 @@ const Todo = () => {
 
   useEffect(() => {
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
-    const todoWidget = savedState.find(widget => widget.name === "Todo");
+    const todoWidget = savedState.find((widget) => widget.name === "Todo");
     if (!todoWidget) return;
     const savedSize = todoWidget?.size || { width: 500, height: 180 };
     setSize(savedSize);
     addWidget("Todo", position, savedSize);
   }, [addWidget, position]);
 
+  useEffect(() => {
+    adjustHeight(todos.length);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todos.length]);
+
+  const adjustHeight = useCallback(
+    (todoCount) => {
+      setSize((prevSize) => {
+        const newHeight = Math.max(180, Math.min(80 + todoCount * 40, 1000));
+        updateWidgetSize("Todo", { ...prevSize, height: newHeight });
+        return { ...prevSize, height: newHeight };
+      });
+    },
+    [updateWidgetSize]
+  );
+
   const addTodo = useCallback(() => {
     const newTodoItem = { id: Date.now(), text: "", completed: false };
-    setTodos((prevTodos) => [...prevTodos, newTodoItem]);
-  }, [setTodos]);
+    setTodos((prevTodos) => {
+      const newTodos = [...prevTodos, newTodoItem];
+      adjustHeight(newTodos.length);
+      return newTodos;
+    });
+  }, [setTodos, adjustHeight]);
 
   const toggleTodo = useCallback(
     (id) => {
@@ -76,14 +96,16 @@ const Todo = () => {
     (id, newText) => {
       setTodos((prevTodos) => {
         if (newText.trim() === "") {
-          return prevTodos.filter((todo) => todo.id !== id);
+          const newTodos = prevTodos.filter((todo) => todo.id !== id);
+          adjustHeight(newTodos.length);
+          return newTodos;
         }
         return prevTodos.map((todo) =>
           todo.id === id ? { ...todo, text: newText } : todo
         );
       });
     },
-    [setTodos]
+    [setTodos, adjustHeight]
   );
 
   const checkTodoHasDone = () => {
@@ -223,7 +245,13 @@ const Todo = () => {
               {checkTodoHasDone() > 0 && (
                 <button
                   onClick={() => {
-                    setTodos(todos.filter((todo) => !todo.completed));
+                    setTodos((prevTodos) => {
+                      const newTodos = prevTodos.filter(
+                        (todo) => !todo.completed
+                      );
+                      adjustHeight(newTodos.length);
+                      return newTodos;
+                    });
                   }}
                   className="w-10  duration-1000 bg-[#2e2e2e]/60 text-white p-2 rounded flex items-center justify-center space-x-2"
                 >
