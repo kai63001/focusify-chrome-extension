@@ -4,7 +4,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { app } from "../libs/firebase";
 
 const Login = ({ onLogin }) => {
@@ -41,7 +41,12 @@ const Login = ({ onLogin }) => {
           email,
           password
         );
-        localStorage.setItem("userName", userCredential.user.displayName);
+
+        // get user name from  getDoc
+        const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+        if (userDoc.exists()) {
+          localStorage.setItem("userName", userDoc.data().name);
+        }
       }
       onLogin(userCredential.user);
     } catch (error) {

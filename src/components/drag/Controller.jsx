@@ -6,6 +6,7 @@ import Note from "./Note";
 // Un-Dragable Widgets
 import Clock from "../widget/clock";
 import Settings from "../widget/settings";
+import User from "../widget/user";
 // Icons
 import { House, Timer, Folder, FileText, FileCheck } from "lucide-react";
 
@@ -13,10 +14,9 @@ import { House, Timer, Folder, FileText, FileCheck } from "lucide-react";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 
 // Hooks
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const Controller = () => {
-  const [userData, setUserData] = useState(null);
   const {
     addWidget,
     removeAllWidgets,
@@ -29,16 +29,8 @@ const Controller = () => {
 
   useEffect(() => {
     initializeFromLocalStorage();
-    fetchUserData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const fetchUserData = async () => {
-    const storedName = localStorage.getItem("userName");
-    if (storedName) {
-      setUserData({ name: storedName });
-    }
-  };
 
   const toggleWidget = (widgetName) => {
     const isOpen = isWidgetOpen(widgetName)(state);
@@ -107,10 +99,8 @@ const Controller = () => {
             </div>
           </div>
           {/* end with user settings */}
-          <div className="flex items-center space-x-3">
-            <div className="text-white text-md font-bold">
-              Hello, {userData?.name}
-            </div>
+          <div className="flex items-center space-x-1">
+            <User />
             <Settings />
           </div>
         </div>

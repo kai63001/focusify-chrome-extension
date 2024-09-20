@@ -1,29 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Settings as SettingsIcon } from "lucide-react";
 import Switch from "../ui/switch";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import ClockSetting from "./clock/ClockSetting";
 import QuickLinkSetting from "./quickLink/QuickLinkSetting";
-import { getCheckoutUrl, getPremiumStatus } from "../../libs/stripe";
-import { auth, app } from "../../libs/firebase";
+
 const Settings = () => {
   const { addWidget, removeWidget, isWidgetOpen, setRememberWidgetPosition } =
     useWidgetControllerStore();
   const state = useWidgetControllerStore();
   const [isOpen, setIsOpen] = useState(false);
   const [currentSetting, setCurrentSetting] = useState(null);
-  const [isPremium, setIsPremium] = useState(false);
-
-  useEffect(() => {
-    const checkPremium = async () => {
-      const newPremiumStatus = auth.currentUser
-        ? await getPremiumStatus(app)
-        : false;
-      setIsPremium(newPremiumStatus);
-    };
-    checkPremium();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [app, auth.currentUser?.uid]);
 
   const toggleWidget = (widgetName) => {
     const isOpen = isWidgetOpen(widgetName)(state);
@@ -32,12 +19,6 @@ const Settings = () => {
     } else {
       addWidget(widgetName);
     }
-  };
-
-  const handleUpgrade = async () => {
-    const priceId = "price_1Q0z3KG1zfOllqcLVPG2Pyi4";
-    const url = await getCheckoutUrl(priceId);
-    window.location.href = url;
   };
 
   return (
@@ -92,20 +73,6 @@ const Settings = () => {
               >
                 <span className="pointer-events-none">Quick Link Settings</span>
               </li>
-              {/* upgrade to premium */}
-              {!isPremium && (
-                <li
-                  onClick={handleUpgrade}
-                  className="px-4 py-2 text-sm text-white hover:bg-white/10 cursor-pointer flex justify-between items-center"
-                >
-                  <span className="pointer-events-none">
-                    Upgrade to Premium
-                  </span>
-                  <button className="bg-blue-500 text-white px-2 py-1 rounded-md">
-                    Upgrade
-                  </button>
-                </li>
-              )}
             </ul>
           )}
         </div>
