@@ -17,6 +17,7 @@ import useWidgetControllerStore from "../../store/widgetControllerStore";
 
 // Hooks
 import { useEffect } from "react";
+import BackgroundSetting from "./BackgroundSetting";
 
 const Controller = () => {
   const {
@@ -112,6 +113,13 @@ const Controller = () => {
       {isWidgetOpen("Todo")(state) && <Todo />}
       {isWidgetOpen("Bookmark")(state) && <Bookmark />}
       {isWidgetOpen("Note")(state) && <Note />}
+      {isWidgetOpen("Background")(state) && (
+        <BackgroundSetting
+          onClose={() => {
+            toggleWidget("Background");
+          }}
+        />
+      )}
       {/* Un-Dragable Widgets */}
       {isWidgetOpen("Clock")(state) && <Clock />}
       {isWidgetOpen("QuickLink")(state) && <QuickLink />}

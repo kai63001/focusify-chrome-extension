@@ -73,6 +73,16 @@ const Settings = () => {
               >
                 <span className="pointer-events-none">Quick Link Settings</span>
               </li>
+              {/* background */}
+              <li
+                onClick={() => {
+                  toggleWidget("Background");
+                  setIsOpen(false);
+                }}
+                className="px-4 py-2 text-sm text-white hover:bg-white/10 cursor-pointer"
+              >
+                <span className="pointer-events-none">Background Settings</span>
+              </li>
             </ul>
           )}
         </div>
