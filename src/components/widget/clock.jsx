@@ -19,7 +19,7 @@ const Clock = () => {
 
   return (
     <div className="absolute top-0 left-0 w-full h-full z-20 flex flex-col text-center">
-      <h1 className="text-white text-[120px] font-bold mt-40">{time}</h1>
+      <h1 className="text-white text-[120px] font-bold mt-[5%]">{time}</h1>
       {/* quote simple small text */}
       <div>
         <p className="text-white text-sm -mt-7 font-bold">

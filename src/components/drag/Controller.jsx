@@ -7,6 +7,8 @@ import Note from "./Note";
 import Clock from "../widget/clock";
 import Settings from "../widget/settings";
 import User from "../widget/user";
+import QuickLink from "../widget/quickLink";
+
 // Icons
 import { House, Timer, Folder, FileText, FileCheck } from "lucide-react";
 
@@ -112,6 +114,7 @@ const Controller = () => {
       {isWidgetOpen("Note")(state) && <Note />}
       {/* Un-Dragable Widgets */}
       {isWidgetOpen("Clock")(state) && <Clock />}
+      {isWidgetOpen("QuickLink")(state) && <QuickLink />}
     </div>
   );
 };
