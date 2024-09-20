@@ -6,6 +6,7 @@ import {
 } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { app } from "../libs/firebase";
+import toast, { Toaster } from "react-hot-toast";
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
@@ -33,6 +34,7 @@ const Login = ({ onLogin }) => {
           });
           localStorage.setItem("userName", name);
         } catch (docError) {
+          toast.error("Error creating user document:", docError);
           console.error("Error creating user document:", docError);
         }
       } else {
@@ -50,8 +52,14 @@ const Login = ({ onLogin }) => {
       }
       onLogin(userCredential.user);
     } catch (error) {
+      if (error.message.includes("email-already-in-use")) {
+        toast.error("Email already in use");
+      } else if (error.message.includes("auth/invalid")) {
+        toast.error("Invalid email or password");
+      } else {
+        toast.error(error.message);
+      }
       console.error("Error:", error);
-      alert(error.message);
     }
   };
 
@@ -104,6 +112,7 @@ const Login = ({ onLogin }) => {
             : "New user? Create account"}
         </button>
       </div>
+      <Toaster />
     </div>
   );
 };

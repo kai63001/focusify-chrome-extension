@@ -8,9 +8,39 @@ const BackgroundSetting = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState("original");
   const originalBackgrounds = [
     {
-      url: "https://images7.alphacoders.com/137/1375523.png",
+      url: "https://images4.alphacoders.com/134/1349198.png",
       name: "",
-      author: "",
+      author: "robokoboto",
+    },
+    {
+      url: "https://images8.alphacoders.com/134/1349195.png",
+      name: "",
+      author: "robokoboto",
+    },
+    {
+      url: "https://images.alphacoders.com/135/1350899.png",
+      name: "",
+      author: "robokoboto",
+    },
+    {
+      url: "https://images7.alphacoders.com/135/1354305.jpeg",
+      name: "",
+      author: "patrika",
+    },
+    {
+      url: "https://images4.alphacoders.com/135/1354757.png",
+      name: "",
+      author: "patrika",
+    },
+    {
+      url: "https://images.alphacoders.com/133/1335808.png",
+      name: "",
+      author: "patrika",
+    },
+    {
+      url: "https://images6.alphacoders.com/131/1316888.jpeg",
+      name: "",
+      author: "Tadokiari",
     },
   ];
   const [uploadedImage, setUploadedImage] = useState(null);
