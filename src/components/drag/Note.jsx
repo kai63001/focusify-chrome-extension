@@ -83,6 +83,7 @@ const Note = () => {
         height={size.height}
         minConstraints={[200, 200]}
         style={{ zIndex: 40 + zIndex }}
+        className="fixed"
         maxConstraints={[800, 800]}
         onResizeStop={(e, data) => {
           const newSize = { width: data.size.width, height: data.size.height };

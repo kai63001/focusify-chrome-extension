@@ -58,7 +58,7 @@ const Todo = () => {
 
   useEffect(() => {
     adjustHeight(todos.length);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todos.length]);
 
   const adjustHeight = useCallback(
@@ -145,7 +145,7 @@ const Todo = () => {
       <ResizableBox
         width={size.width}
         height={size.height}
-        className="absolute"
+        className="fixed"
         minConstraints={[200, 180]}
         maxConstraints={[700, 1000]}
         style={{ zIndex: 40 + zIndex }}

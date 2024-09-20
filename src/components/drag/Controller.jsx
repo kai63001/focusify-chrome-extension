@@ -1,13 +1,16 @@
-import Pomodoro from "./Pomodoro";
-import Todo from "./Todo";
-import Bookmark from "./Bookmark";
-import Note from "./Note";
+import { lazy, Suspense } from "react";
 
+// Dragable Widgets
+const Pomodoro = lazy(() => import("./Pomodoro"));
+const Todo = lazy(() => import("./Todo"));
+const Bookmark = lazy(() => import("./Bookmark"));
+const Note = lazy(() => import("./Note"));
+const PriceTable = lazy(() => import("../modal/PricingTable"));
 // Un-Dragable Widgets
-import Clock from "../widget/clock";
-import Settings from "../widget/settings";
-import User from "../widget/user";
-import QuickLink from "../widget/quickLink";
+const Clock = lazy(() => import("../widget/clock"));
+const Settings = lazy(() => import("../widget/settings"));
+const User = lazy(() => import("../widget/user"));
+const QuickLink = lazy(() => import("../widget/quickLink"));
 
 // Icons
 import { House, Timer, Folder, FileText, FileCheck } from "lucide-react";
@@ -108,21 +111,29 @@ const Controller = () => {
           </div>
         </div>
       </div>
-      {/* Dragable Widgets */}
-      {isWidgetOpen("Pomodoro")(state) && <Pomodoro />}
-      {isWidgetOpen("Todo")(state) && <Todo />}
-      {isWidgetOpen("Bookmark")(state) && <Bookmark />}
-      {isWidgetOpen("Note")(state) && <Note />}
-      {isWidgetOpen("Background")(state) && (
-        <BackgroundSetting
-          onClose={() => {
-            toggleWidget("Background");
-          }}
-        />
-      )}
-      {/* Un-Dragable Widgets */}
-      {isWidgetOpen("Clock")(state) && <Clock />}
-      {isWidgetOpen("QuickLink")(state) && <QuickLink />}
+      {/* Wrap dynamic components with Suspense */}
+      <Suspense fallback={<div>Loading...</div>}>
+        {isWidgetOpen("Pomodoro")(state) && <Pomodoro />}
+        {isWidgetOpen("Todo")(state) && <Todo />}
+        {isWidgetOpen("Bookmark")(state) && <Bookmark />}
+        {isWidgetOpen("Note")(state) && <Note />}
+        {isWidgetOpen("Background")(state) && (
+          <BackgroundSetting
+            onClose={() => {
+              toggleWidget("Background");
+            }}
+          />
+        )}
+        {isWidgetOpen("PricingTable")(state) && (
+          <PriceTable
+            onClose={() => {
+              toggleWidget("PricingTable");
+            }}
+          />
+        )}
+        {isWidgetOpen("Clock")(state) && <Clock />}
+        {isWidgetOpen("QuickLink")(state) && <QuickLink />}
+      </Suspense>
     </div>
   );
 };

@@ -3,9 +3,11 @@ import { X, Upload } from "lucide-react";
 import useBackgroundStore from "../../store/useBackgroundStore";
 import { storage, auth } from "../../libs/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import useUserDataStore from "../../store/userDataStore";
 
 const BackgroundSetting = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState("original");
+  const { premium } = useUserDataStore();
   const originalBackgrounds = [
     {
       url: "https://images4.alphacoders.com/134/1349198.png",
@@ -78,7 +80,7 @@ const BackgroundSetting = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
       <div className="bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg w-[80%] max-w-2xl overflow-hidden">
         <div className="bg-[#2e2e2e]/60 text-white px-4 py-2 flex justify-between items-center">
           <h2 className="text-xl font-bold">Background Settings</h2>
@@ -103,12 +105,18 @@ const BackgroundSetting = ({ onClose }) => {
                 activeTab === "custom"
                   ? "bg-[#ed974d] text-white"
                   : "bg-[#2e2e2e]/60 text-white"
-              }`}
-              onClick={() => setActiveTab("custom")}
+              } ${!premium ? "opacity-50 cursor-not-allowed" : ""}`}
+              onClick={() => premium && setActiveTab("custom")}
+              disabled={!premium}
             >
               Custom
             </button>
           </div>
+          {!premium && (
+            <p className="text-sm text-yellow-400 mb-4">
+              Upgrade to Premium to use custom backgrounds
+            </p>
+          )}
           {activeTab === "original" ? (
             <div className="grid grid-cols-3 gap-4">
               {originalBackgrounds.map((item, index) => (
@@ -123,7 +131,7 @@ const BackgroundSetting = ({ onClose }) => {
                 />
               ))}
             </div>
-          ) : (
+          ) : premium ? (
             <div className="flex flex-col items-center">
               {uploadedImage && (
                 <img
@@ -147,6 +155,13 @@ const BackgroundSetting = ({ onClose }) => {
                   onChange={handleImageUpload}
                 />
               </label>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-64">
+              <p className="text-white text-lg mb-4">Upgrade to Premium to use custom backgrounds</p>
+              <button className="bg-[#ed974d] hover:bg-[#ed974d]/80 text-white px-4 py-2 rounded transition duration-300">
+                Upgrade to Premium
+              </button>
             </div>
           )}
         </div>

@@ -15,7 +15,9 @@ const Pomodoro = () => {
     updateWidgetPosition,
     updateWidgetSize,
   } = useWidgetControllerStore();
-  const zIndex = getWidgetZIndex("Pomodoro")(useWidgetControllerStore.getState());
+  const zIndex = getWidgetZIndex("Pomodoro")(
+    useWidgetControllerStore.getState()
+  );
   const [position, setPosition] = useRandomPosition("Pomodoro");
 
   const [time, setTime] = useState(25 * 60); // 25 minutes in seconds
@@ -25,7 +27,9 @@ const Pomodoro = () => {
 
   useEffect(() => {
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
-    const pomodoroWidget = savedState.find(widget => widget.name === "Pomodoro");
+    const pomodoroWidget = savedState.find(
+      (widget) => widget.name === "Pomodoro"
+    );
     if (!pomodoroWidget) return;
     console.log(pomodoroWidget);
     const savedSize = pomodoroWidget?.size || { width: 300, height: 200 };
@@ -95,13 +99,15 @@ const Pomodoro = () => {
         style={{ zIndex: 40 + zIndex }}
         minConstraints={[200, 150]}
         maxConstraints={[400, 300]}
-        className="absolute"
+        className="fixed"
         onResizeStop={(e, data) => {
           const newSize = { width: data.size.width, height: data.size.height };
           setSize(newSize);
           updateWidgetSize("Pomodoro", newSize);
         }}
-        handle={<div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize" />}
+        handle={
+          <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize" />
+        }
       >
         <div
           className="absolute w-full h-full bg-[#221B15]/70 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden flex flex-col"

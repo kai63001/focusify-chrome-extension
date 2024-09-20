@@ -315,7 +315,7 @@ const Bookmark = () => {
           minConstraints={[400, 300]}
           maxConstraints={[800, 600]}
           style={{ zIndex: 40 + zIndex }}
-          className="absolute"
+          className="fixed"
           onResizeStop={(e, data) => {
             const newSize = { width: data.size.width, height: data.size.height };
             setSize(newSize);
