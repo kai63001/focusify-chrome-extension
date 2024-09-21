@@ -122,7 +122,7 @@ const BackgroundSetting = ({ onClose }) => {
               {originalBackgrounds.map((item, index) => (
                 <div
                   key={index}
-                  className="relative"
+                  className="relative cursor-pointer"
                   onClick={() => handleBackgroundSelect(item.url)}
                 >
                   <div className="absolute top-0 left-0 w-full h-full  flex items-end justify-end">

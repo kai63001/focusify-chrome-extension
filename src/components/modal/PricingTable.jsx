@@ -7,8 +7,15 @@ const PricingTable = ({ onClose }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   const plans = [
-    { name: "Monthly", priceId: "price_1Q0z3KG1zfOllqcLVPG2Pyi4", price: "$9.99" },
-    { name: "Yearly", priceId: "price_yearly_id_here", price: "$99.99" },
+    { name: "Monthly", priceId: "price_1Q0z3KG1zfOllqcLVPG2Pyi4", price: "$3.99" },
+    { name: "Yearly", priceId: "price_yearly_id_here", price: "$29.99" },
+  ];
+
+  const features = [
+    "Access to premium content",
+    "Ad-free experience",
+    "Exclusive member discounts",
+    "Priority customer support",
   ];
 
   const handleUpgrade = async () => {
@@ -42,17 +49,27 @@ const PricingTable = ({ onClose }) => {
               <div
                 key={plan.name}
                 className={`p-4 rounded cursor-pointer transition duration-300 ${
-                  selectedPlan === plan
+                  selectedPlan?.name == plan.name
                     ? "bg-[#ed974d] text-white"
                     : "bg-[#2e2e2e]/60 text-white hover:bg-[#ed974d]/80"
                 }`}
-                onClick={() => setSelectedPlan(plan)}
+                onClick={() => {
+                  setSelectedPlan(plan);
+                }}
               >
                 <h3 className="text-lg font-bold">{plan.name}</h3>
                 <p className="text-2xl font-bold mt-2">{plan.price}</p>
               </div>
             ))}
           </div>
+          <h3 className="text-lg font-bold mb-2">Why Upgrade?</h3>
+          <ul className="list-disc list-inside mb-4">
+            {features.map((feature, index) => (
+              <li key={index} className="text-white">
+                {feature}
+              </li>
+            ))}
+          </ul>
           <button
             className="w-full bg-[#ed974d] hover:bg-[#ed974d]/80 text-white px-4 py-2 rounded transition duration-300"
             onClick={handleUpgrade}
