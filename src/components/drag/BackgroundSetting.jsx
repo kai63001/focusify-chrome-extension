@@ -120,15 +120,22 @@ const BackgroundSetting = ({ onClose }) => {
           {activeTab === "original" ? (
             <div className="grid grid-cols-3 gap-4">
               {originalBackgrounds.map((item, index) => (
-                <img
+                <div
                   key={index}
-                  src={item.url}
-                  alt={`Background ${index + 1}`}
-                  className={`w-full h-32 object-cover cursor-pointer rounded ${
-                    background === item.url ? "border-2 border-[#ed974d]" : ""
-                  }`}
+                  className="relative"
                   onClick={() => handleBackgroundSelect(item.url)}
-                />
+                >
+                  <div className="absolute top-0 left-0 w-full h-full  flex items-end justify-end">
+                    <p className="text-white text-xs">{item.author}</p>
+                  </div>
+                  <img
+                    src={item.url}
+                    alt={`Background ${index + 1}`}
+                    className={`w-full h-32 object-cover cursor-pointer rounded ${
+                      background === item.url ? "border-2 border-[#ed974d]" : ""
+                    }`}
+                  />
+                </div>
               ))}
             </div>
           ) : premium ? (
@@ -158,7 +165,9 @@ const BackgroundSetting = ({ onClose }) => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-64">
-              <p className="text-white text-lg mb-4">Upgrade to Premium to use custom backgrounds</p>
+              <p className="text-white text-lg mb-4">
+                Upgrade to Premium to use custom backgrounds
+              </p>
               <button className="bg-[#ed974d] hover:bg-[#ed974d]/80 text-white px-4 py-2 rounded transition duration-300">
                 Upgrade to Premium
               </button>
