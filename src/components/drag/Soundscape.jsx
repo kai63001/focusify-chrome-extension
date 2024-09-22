@@ -3,11 +3,11 @@ import Draggable from "react-draggable";
 import { ResizableBox } from "react-resizable";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import useRandomPosition from "../../hooks/useRandomPosition";
-import { X } from "lucide-react";
+import { X, Lock } from "lucide-react";
 import "react-resizable/css/styles.css";
 import useSoundScapeStore from "../../store/useSoundScapeStore";
 import Slice from "../ui/slice";
-
+import useUserDataStore from "../../store/userDataStore";
 const Soundscape = () => {
   const {
     bringToFront,
@@ -21,6 +21,7 @@ const Soundscape = () => {
     useWidgetControllerStore.getState()
   );
   const [position, setPosition] = useRandomPosition("Soundscape");
+  const { premium } = useUserDataStore();
 
   const { sounds, setSounds } = useSoundScapeStore();
 
@@ -29,11 +30,11 @@ const Soundscape = () => {
     if (sounds.length === 0) {
       setSounds([
         { name: "rain", volume: 0 },
-        { name: "train", volume: 0 },
-        { name: "wind", volume: 0 },
-        { name: "fire", volume: 0 },
-        { name: "forest", volume: 0 },
-        { name: "ocean", volume: 0 },
+        { name: "train", volume: 0, premium: true },
+        { name: "wind", volume: 0, premium: true },
+        { name: "fire", volume: 0, premium: true },
+        { name: "forest", volume: 0, premium: true },
+        { name: "ocean", volume: 0, premium: true },
       ]);
     }
   }, [sounds, setSounds]);
@@ -105,7 +106,7 @@ const Soundscape = () => {
             id="dragHandle"
             className="text-white px-4 py-2 flex justify-between items-center cursor-move"
           >
-            <span>Soundscape</span>
+            <span>Ambient sound</span>
             <X
               size={16}
               className="cursor-pointer"
@@ -114,13 +115,20 @@ const Soundscape = () => {
               }}
             />
           </div>
+          <p className="text-sm text-yellow-400 px-4">
+            Upgrade to Premium to use ambient sounds
+          </p>
           <div className="p-4 flex flex-col space-y-4">
             {sounds.map((sound) => (
               <div key={sound.name} className="grid grid-cols-12">
-                <span className="col-span-4 capitalize">{sound.name}</span>
+                <span className="col-span-4 capitalize flex items-center space-x-2">
+                  <span>{sound.name}</span>
+                  {sound.premium && !premium && <Lock size={16} />}
+                </span>
                 <div className="col-span-8">
                   <Slice
                     value={sound.volume}
+                    lock={sound.premium && !premium}
                     onChange={(value) => changeVolume(sound.name, value)}
                   />
                 </div>

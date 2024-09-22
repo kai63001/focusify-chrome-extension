@@ -39,8 +39,10 @@ const PricingTable = ({ onClose }) => {
     }
 
     try {
+      localStorage.removeItem("t0aqk323a");
       toast.loading("Processing upgrade", { position: "top-center" });
       const url = await getCheckoutUrl(selectedPlan.priceId);
+      localStorage.removeItem("t0aqk323a");
       window.location.href = url;
     } catch (error) {
       toast.error("Error upgrading to premium", { position: "top-center" });

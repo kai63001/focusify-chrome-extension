@@ -36,7 +36,8 @@ const useWidgetControllerStore = create((set) => ({
           widget.name !== "Pomodoro" &&
           widget.name !== "Todo" &&
           widget.name !== "Bookmark" &&
-          widget.name !== "Note"
+          widget.name !== "Note" &&
+          widget.name !== "Soundscape"
       );
       localStorage.setItem("widgetState", JSON.stringify(newList));
       return { listWidgetOpened: newList };

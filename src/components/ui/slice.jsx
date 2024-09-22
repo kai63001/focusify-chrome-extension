@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 
-const Slice = ({ value, onChange, min = 0, max = 100 }) => {
+const Slice = ({ value, onChange, min = 0, max = 100, lock = false }) => {
   const [isDragging, setIsDragging] = useState(false);
   const sliderRef = useRef(null);
   const percentage = ((value - min) / (max - min)) * 100;
 
   const handleMouseDown = (e) => {
+    if (lock) return;
     setIsDragging(true);
     updateSliderPosition(e);
   };
@@ -44,10 +45,15 @@ const Slice = ({ value, onChange, min = 0, max = 100 }) => {
   }, [isDragging]);
 
   return (
-    <div className="relative w-full flex items-center bg-red-300 rounded-full">
+    <div
+      className={`relative w-full flex items-center rounded-full ${
+        lock ? "bg-[#47403b] cursor-not-allowed" : "bg-[#5B514A]"
+      }`}
+    >
       <div
         ref={sliderRef}
-        className="w-full h-6 bg-[#5B514A] rounded-full cursor-pointer overflow-hidden"
+        className={`w-full h-6 bg-[#5B514A] rounded-full overflow-hidden
+        ${lock ? "cursor-not-allowed" : "cursor-pointer"} `}
         onMouseDown={handleMouseDown}
       >
         <div

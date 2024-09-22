@@ -69,6 +69,9 @@ const User = () => {
       toast.loading("Logging out", {
         position: "top-center",
       });
+      //remove all local storage
+      localStorage.removeItem("userName");
+      localStorage.removeItem("t0aqk323a");
       auth.signOut();
     } catch (error) {
       toast.error("Error logging out", {
