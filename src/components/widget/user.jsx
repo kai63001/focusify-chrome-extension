@@ -90,7 +90,7 @@ const User = () => {
         {isOpen && (
           <div className="absolute bottom-14 right-0 mt-2 w-60 bg-[#221B15]/70 backdrop-blur-lg rounded-md shadow-lg py-1 overflow-hidden">
             <ul>
-              <li className="px-4 py-2 text-sm text-white">
+              <li className="px-4 py-2 text-sm text-white capitalize">
                 {userName || "Guest"}
               </li>
               <div className="h-px w-full bg-white/10"></div>

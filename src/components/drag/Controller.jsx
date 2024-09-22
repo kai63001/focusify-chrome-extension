@@ -6,6 +6,7 @@ const Todo = lazy(() => import("./Todo"));
 const Bookmark = lazy(() => import("./Bookmark"));
 const Note = lazy(() => import("./Note"));
 const PriceTable = lazy(() => import("../modal/PricingTable"));
+const Soundscape = lazy(() => import("./Soundscape"));
 // Un-Dragable Widgets
 const Clock = lazy(() => import("../widget/clock"));
 const Settings = lazy(() => import("../widget/settings"));
@@ -13,7 +14,7 @@ const User = lazy(() => import("../widget/user"));
 const QuickLink = lazy(() => import("../widget/quickLink"));
 
 // Icons
-import { House, Timer, Folder, FileText, FileCheck } from "lucide-react";
+import { House, Timer, Folder, FileText, FileCheck, AudioLines } from "lucide-react";
 
 // Store
 import useWidgetControllerStore from "../../store/widgetControllerStore";
@@ -64,6 +65,10 @@ const Controller = () => {
     {
       name: "Note",
       icon: <FileText size={24} />,
+    },
+    {
+      name: "Soundscape",
+      icon: <AudioLines size={24} />,
     },
   ];
 
@@ -124,6 +129,7 @@ const Controller = () => {
             }}
           />
         )}
+        {isWidgetOpen("Soundscape")(state) && <Soundscape />}
         {isWidgetOpen("PricingTable")(state) && (
           <PriceTable
             onClose={() => {
