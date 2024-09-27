@@ -12,81 +12,77 @@ const MusicController = () => {
     setIsPlaying,
     volume,
   } = useMusicStore();
-  const playerRef = useRef(null);
+  const iframeRef = useRef(null);
 
-  useEffect(() => {
-    // Load YouTube API
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName("script")[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-    window.onYouTubeIframeAPIReady = () => {
-      playerRef.current = new window.YT.Player("youtube-player", {
-        height: "315",
-        width: "560",
-        videoId: music?.id,
-        events: {
-          onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange,
-        },
-      });
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  
   useEffect(() => {
     if (playlist[currentTrackIndex]) {
       setMusic(playlist[currentTrackIndex]);
     }
   }, [currentTrackIndex, playlist, setMusic]);
 
-  const onPlayerReady = (event) => {
-    event.target.playVideo();
-  };
-
-  const onPlayerStateChange = (event) => {
-    const domCurrentTrackIndex = ~~document.getElementById(
-      "current-track-index"
-    ).innerText;
-    const domPlaylistLength =
-      ~~document.getElementById("playlist-length").innerText;
-    console.log("onPlayerStateChange", domPlaylistLength);
-    if (event.data == window.YT.PlayerState.ENDED) {
-      console.log("ended", domCurrentTrackIndex, domPlaylistLength);
-      if (domCurrentTrackIndex < domPlaylistLength - 1) {
-        setCurrentTrackIndex(domCurrentTrackIndex + 1);
-      } else {
-        setIsPlaying(false);
-      }
-    }
-  };
-
   useEffect(() => {
-    if (playerRef.current && playerRef.current.loadVideoById) {
-      playerRef.current.loadVideoById(music?.id);
+    const iframe = iframeRef.current;
+    if (iframe && music?.id) {
+      iframe.src = `https://www.youtube.com/embed/${music.id}?enablejsapi=1&autoplay=1`;
     }
   }, [music]);
 
   useEffect(() => {
-    if (playerRef.current) {
+    const iframe = iframeRef.current;
+    if (iframe) {
       if (isPlaying) {
-        playerRef.current.playVideo();
+        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
       } else {
-        playerRef.current.pauseVideo();
+        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
       }
     }
   }, [isPlaying]);
 
   useEffect(() => {
-    if (playerRef.current && playerRef.current.setVolume) {
-      playerRef.current.setVolume(volume);
+    const iframe = iframeRef.current;
+    if (iframe) {
+      iframe.contentWindow.postMessage(`{"event":"command","func":"setVolume","args":[${volume}]}`, '*');
     }
   }, [volume]);
 
+  const handleMessage = (event) => {
+    if (event.data && typeof event.data === 'string') {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.event === 'onStateChange' && data.info === 0) {
+          // Video ended
+          if (currentTrackIndex < playlist.length - 1) {
+            setCurrentTrackIndex(currentTrackIndex + 1);
+          } else {
+            setIsPlaying(false);
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTrackIndex, playlist.length, setCurrentTrackIndex, setIsPlaying]);
+
   return (
     <div className="hidden">
-      <div id="youtube-player"></div>
+      <iframe
+        ref={iframeRef}
+        width="560"
+        height="315"
+        src={`https://www.youtube.com/embed/${music?.id}?enablejsapi=1`}
+        frameBorder="0"
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+        title="YouTube video player"
+      ></iframe>
       <div id="current-track-index">{currentTrackIndex}</div>
       <div id="playlist-length">{playlist.length}</div>
     </div>
