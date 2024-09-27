@@ -114,9 +114,11 @@ const Soundscape = () => {
               }}
             />
           </div>
-          <p className="text-sm text-yellow-400 px-4">
-            Upgrade to Premium to use ambient sounds
-          </p>
+          {!premium && (
+            <p className="text-sm text-yellow-400 px-4">
+              Upgrade to Premium to use ambient sounds
+            </p>
+          )}
           <div className="p-4 flex flex-col space-y-4">
             {sounds.map((sound) => (
               <div key={sound.name} className="grid grid-cols-12">

@@ -4,47 +4,52 @@ import useBackgroundStore from "../../store/useBackgroundStore";
 import { storage, auth } from "../../libs/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import useUserDataStore from "../../store/userDataStore";
+import { app } from "../../libs/firebase";
+import { collection, query, getDocs, getFirestore } from "firebase/firestore";
 
 const BackgroundSetting = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState("original");
   const { premium } = useUserDataStore();
-  const originalBackgrounds = [
-    {
-      url: "https://images4.alphacoders.com/134/1349198.png",
-      name: "",
-      author: "robokoboto",
-    },
-    {
-      url: "https://images8.alphacoders.com/134/1349195.png",
-      name: "",
-      author: "robokoboto",
-    },
-    {
-      url: "https://images.alphacoders.com/135/1350899.png",
-      name: "",
-      author: "robokoboto",
-    },
-    {
-      url: "https://images7.alphacoders.com/135/1354305.jpeg",
-      name: "",
-      author: "patrika",
-    },
-    {
-      url: "https://images4.alphacoders.com/135/1354757.png",
-      name: "",
-      author: "patrika",
-    },
-    {
-      url: "https://images.alphacoders.com/133/1335808.png",
-      name: "",
-      author: "patrika",
-    },
-    {
-      url: "https://images6.alphacoders.com/131/1316888.jpeg",
-      name: "",
-      author: "Tadokiari",
-    },
-  ];
+
+  const db = getFirestore(app);
+  // const originalBackgrounds = [
+  //   {
+  //     url: "https://images4.alphacoders.com/134/1349198.png",
+  //     name: "",
+  //     author: "robokoboto",
+  //   },
+  //   {
+  //     url: "https://images8.alphacoders.com/134/1349195.png",
+  //     name: "",
+  //     author: "robokoboto",
+  //   },
+  //   {
+  //     url: "https://images.alphacoders.com/135/1350899.png",
+  //     name: "",
+  //     author: "robokoboto",
+  //   },
+  //   {
+  //     url: "https://images7.alphacoders.com/135/1354305.jpeg",
+  //     name: "",
+  //     author: "patrika",
+  //   },
+  //   {
+  //     url: "https://images4.alphacoders.com/135/1354757.png",
+  //     name: "",
+  //     author: "patrika",
+  //   },
+  //   {
+  //     url: "https://images.alphacoders.com/133/1335808.png",
+  //     name: "",
+  //     author: "patrika",
+  //   },
+  //   {
+  //     url: "https://images6.alphacoders.com/131/1316888.jpeg",
+  //     name: "",
+  //     author: "Tadokiari",
+  //   },
+  // ];
+  const [originalBackgrounds, setOriginalBackgrounds] = useState([]);
   const [uploadedImage, setUploadedImage] = useState(null);
   const { setBackground, background } = useBackgroundStore();
 
@@ -59,6 +64,16 @@ const BackgroundSetting = ({ onClose }) => {
         .then((url) => setUploadedImage(url))
         .catch(() => setUploadedImage(null));
     }
+
+    const fetchOriginalBackgrounds = async () => {
+      const snapshot = query(collection(db, "wallpapers"));
+      const docs = await getDocs(snapshot);
+      const backgrounds = docs.docs.map((doc) => doc.data());
+      setOriginalBackgrounds(backgrounds);
+    };
+
+    fetchOriginalBackgrounds();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleBackgroundSelect = (url) => {
@@ -118,6 +133,8 @@ const BackgroundSetting = ({ onClose }) => {
             </p>
           )}
           {activeTab === "original" ? (
+            <>
+            {originalBackgrounds.length > 0 ? (
             <div className="grid grid-cols-3 gap-4">
               {originalBackgrounds.map((item, index) => (
                 <div
@@ -138,6 +155,13 @@ const BackgroundSetting = ({ onClose }) => {
                 </div>
               ))}
             </div>
+            ) : (
+              <p className="text-white text-lg mb-4">
+                Loading original backgrounds...
+              </p>
+            )}
+            </>
+            
           ) : premium ? (
             <div className="flex flex-col items-center">
               {uploadedImage && (

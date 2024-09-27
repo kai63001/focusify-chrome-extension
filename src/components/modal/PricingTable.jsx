@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 const PricingTable = ({ onClose }) => {
   const [selectedPlan, setSelectedPlan] = useState({
     name: "Yearly",
-    priceId: "price_yearly_id_here",
+    priceId: "price_1Q3i99G1zfOllqcL6vlRL0Rl",
     price: "$29.99",
     savings: "Save 37%",
   });
@@ -14,12 +14,12 @@ const PricingTable = ({ onClose }) => {
   const plans = [
     {
       name: "Monthly",
-      priceId: "price_1Q0z3KG1zfOllqcLVPG2Pyi4",
+      priceId: "price_1Q3iUGG1zfOllqcL8YkqSAmR",
       price: "$3.99",
     },
     {
       name: "Yearly",
-      priceId: "price_yearly_id_here",
+      priceId: "price_1Q3i99G1zfOllqcL6vlRL0Rl",
       price: "$29.99",
       savings: "Save 37%",
     },
