@@ -1,5 +1,6 @@
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import useMusicStore from "../../store/useMusicStore";
+import { useState } from "react"; // Add this import
 
 const MusicPlayerController = () => {
     const {
@@ -11,6 +12,8 @@ const MusicPlayerController = () => {
         volume,
         setVolume
     } = useMusicStore();
+
+    const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 
     const handlePlayPause = () => {
         setIsPlaying(!isPlaying);
@@ -30,6 +33,10 @@ const MusicPlayerController = () => {
 
     const handleVolumeChange = (e) => {
         setVolume(parseInt(e.target.value));
+    };
+
+    const handleVolumeIconClick = () => {
+        setShowVolumeSlider(!showVolumeSlider);
     };
 
     return (
@@ -56,15 +63,22 @@ const MusicPlayerController = () => {
                 <SkipForward size={20} />
             </button>
             <div className="flex items-center space-x-2">
-                <Volume2 size={20} className="text-white" />
-                <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={volume}
-                    onChange={handleVolumeChange}
-                    className="w-20 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
-                />
+                <button
+                    onClick={handleVolumeIconClick}
+                    className="text-white hover:text-[#ed974d] transition-colors"
+                >
+                    <Volume2 size={20} />
+                </button>
+                {showVolumeSlider && (
+                    <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={volume}
+                        onChange={handleVolumeChange}
+                        className="w-20 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                    />
+                )}
             </div>
         </div>
     );

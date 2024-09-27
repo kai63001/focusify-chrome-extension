@@ -1,42 +1,28 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Draggable from "react-draggable";
 import { ResizableBox } from "react-resizable";
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import useRandomPosition from "../../hooks/useRandomPosition";
-import {
-  X,
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
-  Plus,
-  Volume2,
-  Share2,
-  Search,
-  Trash,
-  GripVertical,
-} from "lucide-react";
+import { X, Plus, Trash, GripVertical } from "lucide-react";
 import "react-resizable/css/styles.css";
 import useMusicStore from "../../store/useMusicStore";
 import useUserDataStore from "../../store/userDataStore";
 import axios from "axios";
-import { db } from "../../libs/firebase";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 
 const Music = () => {
   const {
+    addWidget,
     bringToFront,
     getWidgetZIndex,
     removeWidget,
     updateWidgetPosition,
     updateWidgetSize,
   } = useWidgetControllerStore();
+
   const zIndex = getWidgetZIndex("Music")(useWidgetControllerStore.getState());
   const [position, setPosition] = useRandomPosition("Music");
 
   const [activeTab, setActiveTab] = useState("myPlaylist");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sharedPlaylists, setSharedPlaylists] = useState([]);
   const [draggedTrack, setDraggedTrack] = useState(null);
 
   // useEffect(() => {
@@ -49,23 +35,22 @@ const Music = () => {
   //   fetchSharedPlaylists();
   // }, []);
 
-  const {
-    music,
-    setMusic,
-    playlist,
-    setPlaylist,
-    currentTrackIndex,
-    setCurrentTrackIndex,
-    isPlaying,
-    setIsPlaying,
-    volume,
-    setVolume,
-  } = useMusicStore();
+  const { playlist, setPlaylist, currentTrackIndex, setCurrentTrackIndex } =
+    useMusicStore();
   const { premium } = useUserDataStore();
   const [inputUrl, setInputUrl] = useState("");
   const [size, setSize] = useState({ width: 350, height: 450 });
 
-  
+  useEffect(() => {
+    const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
+    const soundscapeWidget = savedState.find(
+      (widget) => widget.name === "Music"
+    );
+    if (!soundscapeWidget) return;
+    const savedSize = soundscapeWidget?.size || { width: 350, height: 450 };
+    setSize(savedSize);
+    addWidget("Music", position, savedSize);
+  }, [addWidget, position]);
 
   const handleUrlSubmit = async (e) => {
     e.preventDefault();
@@ -127,24 +112,24 @@ const Music = () => {
   //   setVolume(parseInt(e.target.value));
   // };
 
-  const handleSharePlaylist = async () => {
-    try {
-      await addDoc(collection(db, "playlists"), {
-        userId: useUserDataStore.getState().userId,
-        tracks: playlist,
-        shared: true,
-      });
-      alert("Playlist shared successfully!");
-    } catch (error) {
-      console.error("Error sharing playlist:", error);
-      alert("Failed to share playlist. Please try again.");
-    }
-  };
+  // const handleSharePlaylist = async () => {
+  //   try {
+  //     await addDoc(collection(db, "playlists"), {
+  //       userId: useUserDataStore.getState().userId,
+  //       tracks: playlist,
+  //       shared: true,
+  //     });
+  //     alert("Playlist shared successfully!");
+  //   } catch (error) {
+  //     console.error("Error sharing playlist:", error);
+  //     alert("Failed to share playlist. Please try again.");
+  //   }
+  // };
 
-  const handleSelectSharedPlaylist = (sharedPlaylist) => {
-    setPlaylist(sharedPlaylist.tracks);
-    setCurrentTrackIndex(0);
-  };
+  // const handleSelectSharedPlaylist = (sharedPlaylist) => {
+  //   setPlaylist(sharedPlaylist.tracks);
+  //   setCurrentTrackIndex(0);
+  // };
 
   const onDragStart = (e, track) => {
     setDraggedTrack(track);
@@ -157,7 +142,9 @@ const Music = () => {
     const draggedOverTrack = playlist[index];
     if (draggedTrack.id === draggedOverTrack.id) return;
 
-    const newPlaylist = playlist.filter((track) => track.id !== draggedTrack.id);
+    const newPlaylist = playlist.filter(
+      (track) => track.id !== draggedTrack.id
+    );
     newPlaylist.splice(index, 0, draggedTrack);
     setPlaylist(newPlaylist);
   };
@@ -166,10 +153,6 @@ const Music = () => {
     setDraggedTrack(null);
   };
 
-  const filteredPlaylist = playlist.filter(track => 
-    track.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    track.author_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
   return (
     <Draggable
       bounds="parent"
@@ -223,13 +206,21 @@ const Music = () => {
           <div className="p-4 flex flex-col space-y-4 flex-grow">
             <div className="flex space-x-2">
               <button
-                className={`flex-1 p-2 rounded ${activeTab === "myPlaylist" ? "bg-[#ed974d]" : "bg-[#2e2e2e]/60"} text-white`}
+                className={`flex-1 p-2 rounded ${
+                  activeTab === "myPlaylist"
+                    ? "bg-[#ed974d]"
+                    : "bg-[#2e2e2e]/60"
+                } text-white`}
                 onClick={() => setActiveTab("myPlaylist")}
               >
                 My Playlist
               </button>
               <button
-                className={`flex-1 p-2 rounded ${activeTab === "sharedPlaylists" ? "bg-[#ed974d]" : "bg-[#2e2e2e]/60"} text-white`}
+                className={`flex-1 p-2 rounded ${
+                  activeTab === "sharedPlaylists"
+                    ? "bg-[#ed974d]"
+                    : "bg-[#2e2e2e]/60"
+                } text-white`}
                 onClick={() => setActiveTab("sharedPlaylists")}
               >
                 Shared Playlists
@@ -268,7 +259,7 @@ const Music = () => {
                   </button>
                 </div> */}
                 <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-[#ed974d] scrollbar-track-[#2e2e2e]/60">
-                  {filteredPlaylist.map((track, index) => (
+                  {playlist.map((track, index) => (
                     <div
                       key={track.id}
                       draggable
@@ -276,15 +267,25 @@ const Music = () => {
                       onDragOver={(e) => onDragOver(e, index)}
                       onDragEnd={onDragEnd}
                       className={`p-2 rounded ${
-                        index === currentTrackIndex ? "bg-[#ed974d]" : "bg-white/10"
+                        index === currentTrackIndex
+                          ? "bg-[#ed974d]"
+                          : "bg-white/10"
                       } text-white mb-2 cursor-move hover:bg-[#ed974d]/60 transition-colors flex items-center`}
                       onClick={() => setCurrentTrackIndex(index)}
                     >
                       <GripVertical size={16} className="mr-2 flex-shrink-0" />
-                      <img src={track.thumbnail} alt={track.title} className="w-10 h-10 rounded-md mr-2 flex-shrink-0" />
+                      <img
+                        src={track.thumbnail}
+                        alt={track.title}
+                        className="w-10 h-10 rounded-md mr-2 flex-shrink-0"
+                      />
                       <div className="flex-grow min-w-0">
-                        <p className="text-sm font-semibold truncate">{track.title}</p>
-                        <span className="text-xs text-gray-400 block truncate">{track.author_name}</span>
+                        <p className="text-sm font-semibold truncate">
+                          {track.title}
+                        </p>
+                        <span className="text-xs text-gray-400 block truncate">
+                          {track.author_name}
+                        </span>
                       </div>
                       <Trash
                         size={16}
@@ -299,21 +300,7 @@ const Music = () => {
                 </div>
               </>
             )}
-            {activeTab === "sharedPlaylists" && (
-              <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-[#ed974d] scrollbar-track-[#2e2e2e]/60">
-                <p>SOON</p>
-                {sharedPlaylists.map((sharedPlaylist) => (
-                  <div
-                    key={sharedPlaylist.id}
-                    className="p-2 rounded bg-white/10 text-white mb-2 cursor-pointer hover:bg-[#ed974d]/60 transition-colors"
-                    onClick={() => handleSelectSharedPlaylist(sharedPlaylist)}
-                  >
-                    <span className="font-semibold">Playlist by User {sharedPlaylist.userId}</span>
-                    <span className="text-sm block">{sharedPlaylist.tracks.length} tracks</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            
             {/* <div className="flex justify-between items-center">
               <button
                 onClick={handleSkipBack}

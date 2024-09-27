@@ -56,10 +56,6 @@ const Todo = () => {
     addWidget("Todo", position, savedSize);
   }, [addWidget, position]);
 
-  useEffect(() => {
-    adjustHeight(todos.length);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [todos.length]);
 
   const adjustHeight = useCallback(
     (todoCount) => {
@@ -76,10 +72,9 @@ const Todo = () => {
     const newTodoItem = { id: Date.now(), text: "", completed: false };
     setTodos((prevTodos) => {
       const newTodos = [...prevTodos, newTodoItem];
-      adjustHeight(newTodos.length);
       return newTodos;
     });
-  }, [setTodos, adjustHeight]);
+  }, [setTodos]);
 
   const toggleTodo = useCallback(
     (id) => {
@@ -147,7 +142,6 @@ const Todo = () => {
         height={size.height}
         className="fixed"
         minConstraints={[200, 180]}
-        maxConstraints={[700, 1000]}
         style={{ zIndex: 40 + zIndex }}
         onResizeStop={(e, data) => {
           const newSize = { width: data.size.width, height: data.size.height };

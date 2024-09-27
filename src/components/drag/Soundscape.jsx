@@ -77,7 +77,6 @@ const Soundscape = () => {
         height={size.height}
         style={{ zIndex: 40 + zIndex }}
         minConstraints={[200, 200]}
-        maxConstraints={[400, 600]}
         className="fixed"
         onResizeStop={(e, data) => {
           const newSize = { width: data.size.width, height: data.size.height };
