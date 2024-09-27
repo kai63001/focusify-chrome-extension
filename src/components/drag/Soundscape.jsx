@@ -49,7 +49,7 @@ const Soundscape = () => {
     );
   };
 
-  const [size, setSize] = useState({ width: 318, height: 318 });
+  const [size, setSize] = useState({ width: 318, height: 338 });
 
   useEffect(() => {
     const savedState = JSON.parse(localStorage.getItem("widgetState") || "[]");
@@ -57,7 +57,7 @@ const Soundscape = () => {
       (widget) => widget.name === "Soundscape"
     );
     if (!soundscapeWidget) return;
-    const savedSize = soundscapeWidget?.size || { width: 318, height: 318 };
+    const savedSize = soundscapeWidget?.size || { width: 318, height: 338 };
     setSize(savedSize);
     addWidget("Soundscape", position, savedSize);
   }, [addWidget, position]);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const useRandomPosition = (widgetName) => {
-  const [position, setPosition] = useState({ x: -200, y: -200 });
+  const [position, setPosition] = useState({ x: -1500, y: -1500 });
 
   useEffect(() => {
     const savedState = JSON.parse(localStorage.getItem('widgetState') || '[]');

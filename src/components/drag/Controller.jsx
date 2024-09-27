@@ -12,11 +12,15 @@ const Clock = lazy(() => import("../widget/clock"));
 const Settings = lazy(() => import("../widget/settings"));
 const User = lazy(() => import("../widget/user"));
 const QuickLink = lazy(() => import("../widget/quickLink"));
-
+const Music = lazy(() => import("./Music"));
+const MusicPlayerController = lazy(() =>
+  import("../controller/MusicPlayer.controller")
+);
 // Controller
 const SoundscapeController = lazy(() =>
   import("../controller/Soundscape.controller")
 );
+const MusicController = lazy(() => import("../controller/Music.controller"));
 
 // Icons
 import {
@@ -26,11 +30,13 @@ import {
   FileText,
   FileCheck,
   AudioLines,
+  Music as MusicIcon,
 } from "lucide-react";
 
 // Store
 import useWidgetControllerStore from "../../store/widgetControllerStore";
 import useSoundScapeStore from "../../store/useSoundScapeStore";
+import useMusicStore from "../../store/useMusicStore";
 // Hooks
 import { useEffect } from "react";
 import BackgroundSetting from "./BackgroundSetting";
@@ -46,6 +52,7 @@ const Controller = () => {
   } = useWidgetControllerStore();
   const state = useWidgetControllerStore();
   const stateSoundScape = useSoundScapeStore();
+  const { isPlaying, currentTrackIndex, playlist } = useMusicStore();
 
   useEffect(() => {
     initializeFromLocalStorage();
@@ -80,6 +87,10 @@ const Controller = () => {
       icon: <FileText size={24} />,
     },
     {
+      name: "Music",
+      icon: <MusicIcon size={24} />,
+    },
+    {
       name: "Soundscape",
       icon: <AudioLines size={24} />,
     },
@@ -91,27 +102,37 @@ const Controller = () => {
     <div className="h-full w-full select-none overflow-hidden">
       <div className="absolute bottom-4 left-0 z-50 w-full flex justify-center items-center px-4">
         <div className="p-3 bg-[#221B15]/70 backdrop-blur-lg rounded-lg w-full flex justify-between items-center">
-          {/* start with time format with AM AND PM */}
-          <div className="flex items-center space-x-2">
-            <div className="text-white text-md font-bold">
+          {/* Left section */}
+          <div className="flex-1 flex items-center space-x-2 min-w-0">
+            <div className="text-white text-md font-bold whitespace-nowrap">
               {new Date().toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
               })}
             </div>
-            {/* check if any sound is playing */}
             {soundPlaying && (
               <>
-                <span>·</span>
-                <div className="text-white text-md font-bold">
+                <span className="whitespace-nowrap">·</span>
+                <div className="text-white text-md font-bold whitespace-nowrap">
                   Ambient sound
                 </div>
               </>
             )}
+            {isPlaying && (
+              <>
+                <span className="whitespace-nowrap">·</span>
+                <p className="text-white text-md font-bold text-ellipsis overflow-hidden whitespace-nowrap">
+                  {playlist.length > currentTrackIndex
+                    ? playlist[currentTrackIndex].title
+                    : "No track playing"}
+                </p>
+              </>
+            )}
           </div>
-          {/* main center is a controller compoenent */}
-          <div className="flex justify-center items-center space-x-5">
+          
+          {/* Center section */}
+          <div className="flex-1 flex justify-center items-center space-x-5">
             <button
               onClick={() => {
                 removeAllWidgets();
@@ -134,14 +155,18 @@ const Controller = () => {
                 </button>
               ))}
             </div>
+            <div className="mx-10 h-6 w-px bg-white/30"></div>
+            <MusicPlayerController />
           </div>
-          {/* end with user settings */}
-          <div className="flex items-center space-x-1">
+          
+          {/* Right section */}
+          <div className="flex-1 flex items-center justify-end space-x-1">
             <User />
             <Settings />
           </div>
         </div>
       </div>
+      
       {/* Wrap dynamic components with Suspense */}
       <Suspense fallback={<div>Loading...</div>}>
         {isWidgetOpen("Pomodoro")(state) && <Pomodoro />}
@@ -165,8 +190,10 @@ const Controller = () => {
         )}
         {isWidgetOpen("Clock")(state) && <Clock />}
         {isWidgetOpen("QuickLink")(state) && <QuickLink />}
+        {isWidgetOpen("Music")(state) && <Music />}
       </Suspense>
       <SoundscapeController />
+      <MusicController />
     </div>
   );
 };
