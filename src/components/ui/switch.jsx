@@ -2,7 +2,7 @@ const Switch = ({ isOn, handleToggle }) => {
   return (
     <div
       className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer ${
-        isOn ? "bg-green-400" : "bg-gray-300"
+        isOn ? "bg-[#ed974d]" : "bg-gray-300"
       }`}
       onClick={handleToggle}
     >

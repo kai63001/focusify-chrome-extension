@@ -1,12 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Custom New Tab",
+  "name": "Focusify - Your Productivity Dashboard",
   "version": "1.0",
-  "description": "Replaces the new tab page with a custom HTML page",
+  "description": "Focusify helps you stay focused and productive with a customizable new tab dashboard for organizing tasks and goals.",
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
-  "permissions": ["bookmarks", "storage"],
+  "permissions": ["bookmarks", "storage", "scripting", "activeTab"],
+  "host_permissions": [
+    "https://www.youtube.com/*"  
+  ],
   "background": {
     "service_worker": "background.js"
   },

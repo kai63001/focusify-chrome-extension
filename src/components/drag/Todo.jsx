@@ -56,10 +56,6 @@ const Todo = () => {
     addWidget("Todo", position, savedSize);
   }, [addWidget, position]);
 
-  useEffect(() => {
-    adjustHeight(todos.length);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [todos.length]);
 
   const adjustHeight = useCallback(
     (todoCount) => {
@@ -76,10 +72,9 @@ const Todo = () => {
     const newTodoItem = { id: Date.now(), text: "", completed: false };
     setTodos((prevTodos) => {
       const newTodos = [...prevTodos, newTodoItem];
-      adjustHeight(newTodos.length);
       return newTodos;
     });
-  }, [setTodos, adjustHeight]);
+  }, [setTodos]);
 
   const toggleTodo = useCallback(
     (id) => {
@@ -145,9 +140,8 @@ const Todo = () => {
       <ResizableBox
         width={size.width}
         height={size.height}
-        className="absolute"
+        className="fixed"
         minConstraints={[200, 180]}
-        maxConstraints={[700, 1000]}
         style={{ zIndex: 40 + zIndex }}
         onResizeStop={(e, data) => {
           const newSize = { width: data.size.width, height: data.size.height };
@@ -155,7 +149,17 @@ const Todo = () => {
           updateWidgetSize("Todo", newSize);
         }}
         handle={
-          <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize" />
+          <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M11.5 16v-1.5H16V16h-4.5zM8 16v-1.5h1.5V16H8zm-3.5 0v-1.5H6V16H4.5zM16 12.5h-1.5V16H16v-3.5zM16 9h-1.5v1.5H16V9zM16 5.5h-1.5V7H16V5.5z" />
+            </svg>
+          </div>
         }
       >
         <div

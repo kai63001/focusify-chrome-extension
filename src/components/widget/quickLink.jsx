@@ -6,7 +6,7 @@ const QuickLink = () => {
   return (
     <div className="select-none">
       <div className="absolute top-4 left-0 z-50 flex justify-center items-center px-4">
-        <div className="p-3 bg-[#221B15]/70 backdrop-blur-lg rounded-lg w-full flex justify-between items-center">
+        <div className="p-1 bg-[#221B15]/70 backdrop-blur-lg rounded-lg w-full flex justify-between items-center">
           {listSite.map((site) => (
             <a
               href={site.link}

@@ -53,6 +53,7 @@ const Login = ({ onLogin }) => {
           password
         );
 
+
         // get user name from  getDoc
         const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
         if (userDoc.exists()) {

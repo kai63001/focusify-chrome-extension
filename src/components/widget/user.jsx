@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { auth, app } from "../../libs/firebase";
-import {
-  getPremiumStatus,
-  getPortalUrl,
-  getCheckoutUrl,
-} from "../../libs/stripe";
+import { getPremiumStatus, getPortalUrl } from "../../libs/stripe";
 import useUserDataStore from "../../store/userDataStore";
 import { User as UserIcon, LogOut } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
+import useWidgetControllerStore from "../../store/widgetControllerStore";
 
 const User = () => {
   const { userName, setUserName, premium, setPremium } = useUserDataStore();
+  const state = useWidgetControllerStore();
+  const {
+    addWidget,
+    removeWidget,
+    isWidgetOpen,
+    bringToFront,
+  } = useWidgetControllerStore();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -30,20 +34,19 @@ const User = () => {
     checkUserName();
   }, [setPremium, setUserName]);
 
-  const handleUpgrade = async () => {
-    const priceId = "price_1Q0z3KG1zfOllqcLVPG2Pyi4";
-    try {
-      toast.loading("Upgrading to premium", {
-        position: "top-center",
-      });
-      const url = await getCheckoutUrl(priceId);
-      window.location.href = url;
-    } catch (error) {
-      toast.error("Error upgrading to premium", {
-        position: "top-center",
-      });
-      console.error(error);
+  const toggleWidget = (widgetName) => {
+    const isOpen = isWidgetOpen(widgetName)(state);
+    if (isOpen) {
+      removeWidget(widgetName);
+    } else {
+      addWidget(widgetName);
+      bringToFront(widgetName);
     }
+  };
+
+  const handleUpgrade = () => {
+    setIsOpen(false);
+    toggleWidget("PricingTable");
   };
 
   const handleManageSubscription = async () => {
@@ -66,6 +69,9 @@ const User = () => {
       toast.loading("Logging out", {
         position: "top-center",
       });
+      //remove all local storage
+      localStorage.removeItem("userName");
+      localStorage.removeItem("t0aqk323a");
       auth.signOut();
     } catch (error) {
       toast.error("Error logging out", {
@@ -87,7 +93,7 @@ const User = () => {
         {isOpen && (
           <div className="absolute bottom-14 right-0 mt-2 w-60 bg-[#221B15]/70 backdrop-blur-lg rounded-md shadow-lg py-1 overflow-hidden">
             <ul>
-              <li className="px-4 py-2 text-sm text-white">
+              <li className="px-4 py-2 text-sm text-white capitalize">
                 {userName || "Guest"}
               </li>
               <div className="h-px w-full bg-white/10"></div>
